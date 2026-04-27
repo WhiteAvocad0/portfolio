@@ -1,14 +1,55 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #FAFAF7;
-  --fg: #0A0A0A;
-  --muted: #737373;
-  --border: #E5E5E5;
+@theme {
+  --color-bg: #FAFAF7;
+  --color-fg: #0A0A0A;
+  --color-muted: #737373;
+  --color-border: #E5E5E5;
+
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --container-page: 1280px;
 }
 
-html, body {
-  background: var(--bg);
-  color: var(--fg);
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html, body {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Hide native cursor on devices with a precise pointer when our custom cursor is active.
+     We toggle this with a body class set by the CustomCursor component on mount. */
+  body.has-custom-cursor {
+    cursor: none;
+  }
+
+  body.has-custom-cursor a,
+  body.has-custom-cursor button {
+    cursor: none;
+  }
+
+  /* Visible focus for keyboard navigation */
+  :focus-visible {
+    outline: 2px solid var(--color-fg);
+    outline-offset: 4px;
+  }
+
+  /* Honour reduced motion globally — Framer Motion respects this via prefers-reduced-motion,
+     but we also disable CSS transitions to be safe. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
