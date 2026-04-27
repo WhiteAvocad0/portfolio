@@ -6,18 +6,22 @@ import { ProjectsSection } from '@/components/sections/projects-section';
 import { ExperienceSection } from '@/components/sections/experience-section';
 import { CertificationsSection } from '@/components/sections/certifications-section';
 import { ContactSection } from '@/components/sections/contact-section';
+import { Footer } from '@/components/sections/footer';
 
 export default function Home() {
   return (
-    <main>
-      <HeroSection />
-      <AboutSection />
-      <EducationSection />
-      <SkillsSection />
-      <ProjectsSection />
-      <ExperienceSection />
-      <CertificationsSection />
-      <ContactSection />
-    </main>
+    <>
+      <main>
+        <HeroSection />
+        <AboutSection />
+        <EducationSection />
+        <SkillsSection />
+        <ProjectsSection />
+        <ExperienceSection />
+        <CertificationsSection />
+        <ContactSection />
+      </main>
+      <Footer />
+    </>
   );
 }
