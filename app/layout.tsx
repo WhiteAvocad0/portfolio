@@ -22,15 +22,55 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://jeremywoon.dev'),
   title: 'Jeremy Woon — Final-year IT student & developer',
   description:
     'Portfolio of Jeremy Woon, a final-year Information Technology student at APU. Available for graduate SWE roles starting September 2026.',
+  openGraph: {
+    title: 'Jeremy Woon — Portfolio',
+    description: 'Final-year IT student at APU. Open to graduate SWE roles.',
+    url: 'https://jeremywoon.dev',
+    siteName: 'Jeremy Woon',
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Jeremy Woon — Portfolio',
+    description: 'Final-year IT student at APU. Open to graduate SWE roles.',
+    images: ['/og-image.png'],
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Person',
+              name: 'Jeremy Woon',
+              url: 'https://jeremywoon.dev',
+              jobTitle: 'Software Engineering Student',
+              alumniOf: {
+                '@type': 'CollegeOrUniversity',
+                name: 'Asia Pacific University of Technology and Innovation',
+              },
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: 'Kuala Lumpur',
+                addressCountry: 'MY',
+              },
+            }),
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
