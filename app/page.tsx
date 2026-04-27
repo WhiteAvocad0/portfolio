@@ -7,10 +7,14 @@ import { ExperienceSection } from '@/components/sections/experience-section';
 import { CertificationsSection } from '@/components/sections/certifications-section';
 import { ContactSection } from '@/components/sections/contact-section';
 import { Footer } from '@/components/sections/footer';
+import { CustomCursor } from '@/components/navigation/custom-cursor';
+import { ScrollProgress } from '@/components/navigation/scroll-progress';
 
 export default function Home() {
   return (
     <>
+      <CustomCursor />
+      <ScrollProgress />
       <main>
         <HeroSection />
         <AboutSection />
