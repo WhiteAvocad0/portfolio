@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio
 
-## Getting Started
+Personal portfolio of Jeremy Woon — final-year IT student at Asia Pacific University of Technology and Innovation (APU), graduating 2026.
 
-First, run the development server:
+**Live:** https://portfolio-xi-six-56.vercel.app
+
+A single-page editorial portfolio built with monochrome typography (Instrument Serif + Inter + JetBrains Mono), brutalist section numerals, and quiet interaction details (custom cursor, magnetic links, scroll-driven reveals).
+
+## Stack
+
+- Next.js 16 (App Router) · TypeScript
+- Tailwind CSS v4 (CSS `@theme` tokens)
+- Framer Motion (`motion/react`)
+- Vitest + @testing-library/react
+- Playwright (smoke E2E)
+- Vercel
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Verification
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run test:e2e
+npm run build
+```
 
-## Learn More
+## Project structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/                    Next.js App Router (layout, page, sitemap, robots, icon)
+components/
+  hero/                 NameReveal · HighlighterSwipe · StatusBlock · HeroSection
+  layout/               Section · SectionNumeral · LineReveal
+  navigation/           CustomCursor · MagneticLink · ScrollProgress
+  sections/             About · Education · Skills · Projects · Experience · Certifications · Contact · Footer
+lib/
+  data.ts               Single source of truth for all content (swap dummy → real here)
+  hooks/                useTouchDevice · useMousePosition · useMagnetic · useReducedMotion
+public/                 resume.pdf (placeholder) · og-image.png (placeholder)
+tests/
+  unit/                 hooks + data
+  components/           component-level tests
+  e2e/                  Playwright smoke
+docs/superpowers/       design spec + implementation plan
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Replacing the dummy content
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All copy lives in `lib/data.ts`. Edit the `profile`, `education`, `skills`, `projects`, `experience`, and `certifications` exports — every section reads from there.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For the resume PDF and OG image, replace `public/resume.pdf` and `public/og-image.png` with real files (same paths).
