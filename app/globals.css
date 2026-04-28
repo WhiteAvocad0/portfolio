@@ -10,6 +10,15 @@
   --muted-2: #A3A3A0;
   --rule: #E1DDD0;
   --rule-soft: #ECE8DB;
+  /* Twilight accents — surgical, vibe over volume */
+  --indigo: #1F2347;
+  --indigo-2: #2A2F5A;
+  --indigo-soft: rgba(31, 35, 71, 0.10);
+  --ember: #E96E3D;
+  --ember-soft: #F4A574;
+  --ember-glow: rgba(233, 110, 61, 0.35);
+  --pulse: #D9442D;
+  --pulse-glow: rgba(217, 68, 45, 0.55);
   --serif: var(--font-display), ui-serif, Georgia, serif;
   --sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
@@ -39,14 +48,29 @@ body {
   outline-offset: 4px;
 }
 
-/* Soft vignette for depth framing */
+/* Painterly grain — fine fractal-noise overlay, brushwork texture without busyness */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+
+/* Soft vignette for depth framing — twilight-tinted at the corners */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(120% 100% at 50% 50%, transparent 50%, rgba(10,10,10,0.06) 100%);
+  background:
+    radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(31,35,71,0.07) 100%),
+    radial-gradient(80% 60% at 100% 100%, transparent 60%, rgba(233,110,61,0.05) 100%);
 }
 
 .wrap {
@@ -83,9 +107,10 @@ body::after {
 .hero h1 .swipe,
 .hero .swipe {
   display: inline-block;
-  background: var(--fg);
+  background: var(--indigo);
   color: var(--bg);
   padding: 0 0.12em;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 4px 12px rgba(31,35,71,0.18);
 }
 .hero .tagline {
   font-family: var(--serif);
@@ -215,10 +240,10 @@ section.s::before {
   content: '';
   position: absolute;
   left: 0; right: 0; top: 0;
-  height: 60px;
+  height: 80px;
   background: linear-gradient(180deg,
-    rgba(10,10,10,0.10) 0%,
-    rgba(10,10,10,0.04) 30%,
+    rgba(31,35,71,0.12) 0%,
+    rgba(31,35,71,0.05) 35%,
     rgba(10,10,10,0) 100%);
   pointer-events: none;
   z-index: 2;
@@ -352,7 +377,7 @@ section.s::after {
   content: '';
   position: absolute; left: 0; top: -1px;
   height: 3px;
-  background: var(--fg);
+  background: linear-gradient(90deg, var(--indigo) 0%, var(--indigo-2) 55%, var(--ember) 100%);
   width: 0;
   transition: width 1.4s cubic-bezier(.22,1,.36,1);
 }
@@ -375,7 +400,12 @@ section.s::after {
   position: absolute;
   left: 92px; top: 8px; bottom: 8px;
   width: 1px;
-  background: var(--rule);
+  background: linear-gradient(180deg,
+    var(--ember) 0%,
+    var(--ember-soft) 6%,
+    var(--indigo-2) 28%,
+    var(--rule) 60%,
+    var(--rule) 100%);
 }
 @media (max-width: 600px) { .trail::before { left: 16px; } }
 .ev {
@@ -396,13 +426,28 @@ section.s::after {
 }
 @media (max-width: 600px) { .ev::before { left: -23px; } }
 .ev.now::before {
-  background: var(--fg);
-  transform: translateZ(20px) scale(1.15);
-  box-shadow:
-    0 0 0 4px var(--bg),
-    0 0 0 5px var(--rule),
-    0 4px 8px rgba(10,10,10,0.12),
-    0 12px 24px rgba(10,10,10,0.16);
+  background: var(--pulse);
+  border-color: var(--pulse);
+  transform: translateZ(20px) scale(1.18);
+  animation: ember-pulse 2.4s cubic-bezier(.4,0,.6,1) infinite;
+}
+@keyframes ember-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 4px var(--bg),
+      0 0 0 5px var(--rule),
+      0 0 10px 1px rgba(217,68,45,0.45),
+      0 0 0 0 rgba(217,68,45,0);
+    opacity: 1;
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px var(--bg),
+      0 0 0 5px var(--rule),
+      0 0 22px 6px rgba(217,68,45,0.7),
+      0 0 0 14px rgba(217,68,45,0);
+    opacity: 0.78;
+  }
 }
 .ev .yr {
   position: absolute;
@@ -633,23 +678,25 @@ section.s::after {
 }
 .outro .links a:hover { border-bottom-color: var(--fg); transform: translateX(4px); }
 .outro .cta-card {
-  border: 1px solid var(--fg);
+  border: 1px solid var(--indigo);
   padding: 28px 24px;
-  background: var(--fg);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(233,110,61,0.18) 0%, rgba(233,110,61,0) 55%),
+    var(--indigo);
   color: var(--bg);
   transform-style: preserve-3d;
   transition: transform 0.6s cubic-bezier(.22,1,.36,1), box-shadow 0.6s ease;
   box-shadow:
-    0 4px 8px rgba(10,10,10,0.16),
-    0 24px 48px rgba(10,10,10,0.32),
-    0 60px 120px -20px rgba(10,10,10,0.5);
+    0 4px 8px rgba(31,35,71,0.18),
+    0 24px 48px rgba(31,35,71,0.34),
+    0 60px 120px -20px rgba(31,35,71,0.55);
 }
 .outro .cta-card:hover {
   transform: translateZ(60px) translateY(-12px) rotateX(-4deg);
   box-shadow:
-    0 8px 16px rgba(10,10,10,0.18),
-    0 40px 80px rgba(10,10,10,0.36),
-    0 100px 180px -20px rgba(10,10,10,0.6);
+    0 8px 16px rgba(31,35,71,0.22),
+    0 40px 80px rgba(31,35,71,0.4),
+    0 100px 180px -20px rgba(31,35,71,0.65);
 }
 .outro .cta-card .lab {
   font-family: var(--mono);
