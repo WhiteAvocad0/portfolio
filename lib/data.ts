@@ -1,22 +1,13 @@
 export const profile = {
   name: 'Jeremy Woon',
-  eyebrow: 'Portfolio · v2.0',
+  initials: 'JW',
   available: 'Available · Sept 2026',
-  versionTag: 'v2.0',
-  role: 'Grad SWE',
   status: 'Open · Sept 2026',
-  shortStack: 'TS · Python · Node',
   location: 'Kuala Lumpur, MY',
   city: 'Kuala Lumpur',
   swipeWord: 'software',
-  hero: {
-    education: 'BSc IT · APU',
-    focus: 'Software Engineering',
-    cgpa: '3.7 / 4.0',
-  },
   about: {
     lead: 'Final-year Information Technology student at Asia Pacific University (APU), specialising in Software Engineering — graduating Sept 2026.',
-    body: 'I write TypeScript on the front, a mix of Node and Python on the back, and just enough cloud to make it all work. Outside coursework, I build small tools, contribute to a couple of open-source repos, and lose evenings to system-design rabbit holes.',
     note: 'I care about clear interfaces, fast feedback loops, and software that respects the people using it. Looking for a graduate role where I can keep learning from senior engineers and ship things that matter.',
   },
   cta: {

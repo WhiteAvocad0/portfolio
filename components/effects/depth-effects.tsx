@@ -2,10 +2,11 @@
 import { useEffect } from 'react';
 
 /**
- * Layered 3D depth: scroll-driven section parallax, cursor-driven ambient light,
- * id-card cursor tilt, and intersection-observed reveal animations.
+ * Scroll-driven 3D depth: hero element parallax, per-section translateZ, and
+ * IntersectionObserver-driven reveal animations. Cursor-following effects
+ * (id-card tilt, ambient light) were intentionally removed.
  *
- * Mounts once at the bottom of the page; renders nothing.
+ * Mounts once, renders nothing.
  */
 export function DepthEffects() {
   useEffect(() => {
@@ -39,19 +40,9 @@ export function DepthEffects() {
     const heroTag = document.querySelector<HTMLElement>('.hero .tagline');
     const heroCard = document.querySelector<HTMLElement>('.hero .id-card');
     const heroEyebrow = document.querySelector<HTMLElement>('.hero .eyebrow');
-    const heroStrip = document.querySelector<HTMLElement>('.hero .strip');
 
     let scrollY = window.scrollY;
     let targetY = window.scrollY;
-    let mouseX = window.innerWidth / 2;
-    let mouseY = window.innerHeight / 2;
-    let smoothMx = mouseX;
-    let smoothMy = mouseY;
-    let cardTiltX = 0;
-    let cardTiltY = 0;
-    let smoothTiltX = 0;
-    let smoothTiltY = 0;
-    let cardActive = false;
 
     const sections = Array.from(
       document.querySelectorAll<HTMLElement>('section.s, .outro')
@@ -73,25 +64,9 @@ export function DepthEffects() {
     let raf = 0;
     const tick = () => {
       const dy = targetY - scrollY;
-      const dmx = mouseX - smoothMx;
-      const dmy = mouseY - smoothMy;
-      const dtx = cardTiltX - smoothTiltX;
-      const dty = cardTiltY - smoothTiltY;
-
       scrollY += dy * 0.18;
-      smoothMx += dmx * 0.12;
-      smoothMy += dmy * 0.12;
-      smoothTiltX += dtx * 0.12;
-      smoothTiltY += dty * 0.12;
 
-      const idle =
-        Math.abs(dy) < EPS &&
-        Math.abs(dmx) < EPS &&
-        Math.abs(dmy) < EPS &&
-        Math.abs(dtx) < EPS &&
-        Math.abs(dty) < EPS;
-
-      if (!idle) {
+      if (Math.abs(dy) >= EPS) {
         const y = scrollY;
 
         if (heroEyebrow) heroEyebrow.style.transform = `translate3d(0, ${y * -0.42}px, 0)`;
@@ -100,12 +75,7 @@ export function DepthEffects() {
             1 + Math.min(0.05, y * 0.00012)
           })`;
         if (heroTag) heroTag.style.transform = `translate3d(0, ${y * -0.18}px, 0)`;
-        if (heroStrip) heroStrip.style.transform = `translate3d(0, ${y * -0.04}px, 0)`;
-        if (heroCard) {
-          const tx = y * -0.08;
-          const z = cardActive ? 50 : 0;
-          heroCard.style.transform = `translate3d(0, ${tx}px, 0) perspective(900px) rotateX(${smoothTiltX}deg) rotateY(${smoothTiltY}deg) translateZ(${z}px)`;
-        }
+        if (heroCard) heroCard.style.transform = `translate3d(0, ${y * -0.08}px, 0)`;
 
         const vh = window.innerHeight;
         sections.forEach((sec) => {
@@ -124,9 +94,6 @@ export function DepthEffects() {
             });
           }
         });
-
-        document.body.style.setProperty('--mx', (smoothMx / window.innerWidth) * 100 + '%');
-        document.body.style.setProperty('--my', (smoothMy / window.innerHeight) * 100 + '%');
       }
 
       raf = requestAnimationFrame(tick);
@@ -136,42 +103,12 @@ export function DepthEffects() {
     const onScroll = () => {
       targetY = window.scrollY;
     };
-    const onMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      if (!heroCard) return;
-      const r = heroCard.getBoundingClientRect();
-      // Skip tilt math when the card is fully off-screen
-      if (r.bottom < 0 || r.top > window.innerHeight) {
-        cardActive = false;
-        cardTiltX = 0;
-        cardTiltY = 0;
-        return;
-      }
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = (e.clientX - cx) / r.width;
-      const dy = (e.clientY - cy) / r.height;
-      const dist = Math.hypot(dx, dy);
-      if (dist < 1.6) {
-        cardActive = true;
-        cardTiltX = -dy * 12;
-        cardTiltY = dx * 12;
-      } else {
-        cardActive = false;
-        cardTiltX = 0;
-        cardTiltY = 0;
-      }
-    };
-
     document.addEventListener('scroll', onScroll, { passive: true });
-    document.addEventListener('mousemove', onMove, { passive: true });
 
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
       document.removeEventListener('scroll', onScroll);
-      document.removeEventListener('mousemove', onMove);
     };
   }, []);
 

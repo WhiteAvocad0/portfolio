@@ -18,7 +18,6 @@ export function AboutSection() {
           <div className="empty" />
           <div className="about-body reveal">
             <p>{about.lead}</p>
-            <p className="sub">{about.body}</p>
             <p className="sub muted">{about.note}</p>
           </div>
         </div>
