@@ -53,9 +53,9 @@ describe('ContactSection', () => {
 });
 
 describe('Footer', () => {
-  it('renders the candidate name and a built-with note', () => {
+  it('renders the candidate name twice (copyright + signature) without trailing meta', () => {
     render(<Footer />);
-    expect(screen.getAllByText(/Jeremy Woon/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/built with next\.js/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Jeremy Woon/).length).toBeGreaterThanOrEqual(2);
+    expect(screen.queryByText(/built with next\.js/i)).toBeNull();
   });
 });

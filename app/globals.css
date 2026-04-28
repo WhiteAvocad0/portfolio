@@ -2,17 +2,17 @@
    painterly grain. Design tokens map to next/font-injected CSS variables. */
 
 :root {
-  /* Sky palette — Futari No reference, richer + saturated */
-  --sky: #226BF3;            /* deep cornflower (FTR body bg) */
-  --sky-2: #4F8AF5;          /* lighter sky highlight */
-  --sky-deep: #154393;       /* mid-altitude sky */
-  --night: #0B234E;          /* deep navy / horizon ink */
-  --night-2: #0A1B3A;        /* card depth */
+  /* Sky palette — darker FTR-matched (.ftr_text bg as the primary tone) */
+  --sky: #0B3272;            /* FTR ftr_text bg — the dark reference */
+  --sky-2: #1A56C2;          /* mid blue accent */
+  --sky-deep: #072353;       /* darker mid */
+  --night: #04122A;          /* very deep navy / horizon ink */
+  --night-2: #050E22;        /* card depth */
   --bloom: #FF80F7;          /* neon magenta-pink (FTR streaks) */
   --bloom-soft: #FFA8F4;     /* light pink for halos and italic accents */
   --bloom-glow: rgba(255, 128, 247, 0.55);
-  --pulse: #FF5A8B;          /* hot pink for the live ember */
-  --pulse-glow: rgba(255, 90, 139, 0.65);
+  --pulse: #FF3146;          /* signal-tower beacon red */
+  --pulse-glow: rgba(255, 49, 70, 0.7);
   --comet: #FFD945;          /* warm yellow comet streak (FTR signature) */
   --comet-soft: #FFE789;     /* lighter gold for halos */
   --ember: #FFB347;          /* warm horizon glow */
@@ -476,27 +476,41 @@ section.s::after {
 .ev.now::before {
   background: var(--pulse);
   border-color: var(--pulse);
-  transform: translateZ(20px) scale(1.18);
-  animation: ember-pulse 2.4s cubic-bezier(.4,0,.6,1) infinite;
+  width: 12px;
+  height: 12px;
+  transform: translateZ(20px) scale(1.2);
+  animation: signal-pulse 1.8s linear infinite;
 }
-@keyframes ember-pulse {
-  0%, 100% {
+/* Signal-tower beacon: fast fade-in, brief peak, fast fade-out, long dwell off.
+   Dot bg/ border stay solid throughout so the trail spine is never visible
+   through the dot — only the surrounding glow halo varies. The 4px ring of
+   --sky-deep masks the spine where the dot sits. */
+@keyframes signal-pulse {
+  0% {
     box-shadow:
       0 0 0 4px var(--sky-deep),
-      0 0 0 5px rgba(255,255,255,0.3),
-      0 0 12px 2px rgba(255,90,139,0.6),
-      0 0 22px 4px rgba(255,217,69,0.18),
-      0 0 0 0 rgba(255,128,247,0);
-    opacity: 1;
+      0 0 0 5px rgba(255, 255, 255, 0.18),
+      0 0 4px 0 rgba(255, 49, 70, 0);
   }
-  50% {
+  6% {
     box-shadow:
       0 0 0 4px var(--sky-deep),
-      0 0 0 5px rgba(255,255,255,0.5),
-      0 0 26px 7px rgba(255,90,139,0.85),
-      0 0 36px 10px rgba(255,217,69,0.30),
-      0 0 0 16px rgba(255,128,247,0);
-    opacity: 0.85;
+      0 0 0 5px rgba(255, 255, 255, 0.55),
+      0 0 28px 8px rgba(255, 49, 70, 0.95),
+      0 0 38px 14px rgba(255, 217, 69, 0.45);
+  }
+  14% {
+    box-shadow:
+      0 0 0 4px var(--sky-deep),
+      0 0 0 5px rgba(255, 255, 255, 0.62),
+      0 0 34px 10px rgba(255, 49, 70, 1),
+      0 0 46px 18px rgba(255, 217, 69, 0.55);
+  }
+  22%, 100% {
+    box-shadow:
+      0 0 0 4px var(--sky-deep),
+      0 0 0 5px rgba(255, 255, 255, 0.18),
+      0 0 4px 0 rgba(255, 49, 70, 0);
   }
 }
 .ev .yr {
@@ -858,21 +872,9 @@ footer.foot .sig {
   }
 }
 
-/* ---------- Reactive comet cursor ---------- */
-.comet-cursor {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  mix-blend-mode: screen;
-}
-
 /* ---------- Print ---------- */
 @media print {
   .outro .cta-card { display: none; }
-  .comet-cursor { display: none !important; }
   body {
     background: #fff !important;
     color: #000 !important;
