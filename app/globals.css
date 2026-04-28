@@ -2,17 +2,19 @@
    painterly grain. Design tokens map to next/font-injected CSS variables. */
 
 :root {
-  /* Sky palette — full immersion */
-  --sky: #4D82E6;            /* cornflower blue */
-  --sky-2: #6797ED;          /* lighter sky highlight */
-  --sky-deep: #2A4A88;       /* mid-altitude sky */
-  --night: #08234C;          /* deep navy / horizon ink */
-  --night-2: #0F1B3A;        /* card depth */
-  --bloom: #FE7DFF;          /* neon magenta-pink (the brushstroke clouds) */
-  --bloom-soft: #F4A8F6;     /* light pink for halos and italic accents */
-  --bloom-glow: rgba(254, 125, 255, 0.55);
+  /* Sky palette — Futari No reference, richer + saturated */
+  --sky: #226BF3;            /* deep cornflower (FTR body bg) */
+  --sky-2: #4F8AF5;          /* lighter sky highlight */
+  --sky-deep: #154393;       /* mid-altitude sky */
+  --night: #0B234E;          /* deep navy / horizon ink */
+  --night-2: #0A1B3A;        /* card depth */
+  --bloom: #FF80F7;          /* neon magenta-pink (FTR streaks) */
+  --bloom-soft: #FFA8F4;     /* light pink for halos and italic accents */
+  --bloom-glow: rgba(255, 128, 247, 0.55);
   --pulse: #FF5A8B;          /* hot pink for the live ember */
   --pulse-glow: rgba(255, 90, 139, 0.65);
+  --comet: #FFD945;          /* warm yellow comet streak (FTR signature) */
+  --comet-soft: #FFE789;     /* lighter gold for halos */
   --ember: #FFB347;          /* warm horizon glow */
 
   /* Semantic tokens — body sits white-on-blue */
@@ -40,7 +42,8 @@ html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
   background:
-    linear-gradient(180deg, var(--sky) 0%, var(--sky-deep) 55%, var(--night) 100%);
+    url('/stars.svg') 0 0 / 1200px 800px repeat,
+    linear-gradient(180deg, var(--sky) 0%, var(--sky-deep) 50%, var(--night) 100%);
   background-attachment: fixed;
   color: var(--fg);
   font-family: var(--sans);
@@ -71,7 +74,7 @@ body::before {
   background-size: 240px 240px;
 }
 
-/* Atmospheric wash — pink horizon bloom + soft white sun-spot */
+/* Atmospheric wash — pink horizon bloom, gold streak highlight, soft sun-spot */
 body::after {
   content: '';
   position: fixed;
@@ -79,8 +82,9 @@ body::after {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(120% 70% at 50% 100%, rgba(254,125,255,0.20) 0%, rgba(254,125,255,0) 55%),
-    radial-gradient(80% 60% at 12% 8%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 100%);
+    radial-gradient(150% 60% at 50% 100%, rgba(255,128,247,0.32) 0%, rgba(184,93,210,0.12) 35%, rgba(255,128,247,0) 70%),
+    radial-gradient(60% 30% at 75% 95%, rgba(255,217,69,0.10) 0%, rgba(255,217,69,0) 100%),
+    radial-gradient(80% 60% at 14% 8%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 100%);
 }
 
 .wrap {
@@ -159,36 +163,56 @@ body::after {
 }
 .hero .eyebrow b { color: var(--fg); font-weight: 400; }
 
-/* hero side card — deep night with pink wash */
+/* hero side card — matte liquid glass over the night sky */
 .hero .id-card {
+  position: relative;
   border: 1px solid rgba(255,255,255,0.18);
   background:
-    radial-gradient(120% 140% at 0% 0%, rgba(254,125,255,0.18) 0%, rgba(254,125,255,0) 55%),
-    var(--night);
+    radial-gradient(140% 160% at 0% 0%, rgba(255,128,247,0.18) 0%, rgba(255,128,247,0) 55%),
+    rgba(11, 35, 78, 0.48);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
   padding: 24px 22px;
   font-family: var(--round);
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.72);
+  color: rgba(255,255,255,0.78);
   will-change: transform, box-shadow;
-  transition: box-shadow 0.4s ease;
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
   transform-style: preserve-3d;
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.08) inset,
-    0 2px 4px rgba(0,0,0,0.18),
-    0 8px 16px rgba(0,0,0,0.22),
-    0 24px 48px rgba(0,0,0,0.32),
-    0 48px 96px -16px rgba(8,35,76,0.55);
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 0 24px rgba(255,128,247,0.05),
+    0 4px 8px rgba(0,0,0,0.18),
+    0 12px 32px rgba(0,0,0,0.32),
+    0 32px 80px -16px rgba(11,35,78,0.55);
+}
+/* matte grain inside the glass — kills any too-glossy feel */
+.hero .id-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
 }
 .hero .id-card:hover {
+  border-color: rgba(255,255,255,0.28);
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.12) inset,
-    0 4px 8px rgba(0,0,0,0.24),
-    0 16px 32px rgba(0,0,0,0.32),
-    0 40px 80px rgba(0,0,0,0.42),
-    0 80px 140px -20px rgba(254,125,255,0.32);
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    inset 0 0 32px rgba(255,128,247,0.08),
+    0 8px 16px rgba(0,0,0,0.22),
+    0 24px 48px rgba(0,0,0,0.36),
+    0 64px 120px -20px rgba(255,128,247,0.32);
 }
+/* keep dl/avatar above the matte grain layer */
+.hero .id-card .head,
+.hero .id-card dl,
+.hero .id-card .avatar { position: relative; z-index: 1; }
 .hero .id-card .head {
   display: flex;
   justify-content: space-between;
@@ -423,12 +447,13 @@ section.s::after {
   left: 92px; top: 8px; bottom: 8px;
   width: 1px;
   background: linear-gradient(180deg,
-    var(--bloom) 0%,
-    var(--bloom-soft) 6%,
-    rgba(254,125,255,0.40) 22%,
-    rgba(255,255,255,0.22) 55%,
+    var(--comet) 0%,
+    var(--bloom) 6%,
+    var(--bloom-soft) 14%,
+    rgba(255,128,247,0.40) 28%,
+    rgba(255,255,255,0.22) 60%,
     rgba(255,255,255,0.10) 100%);
-  box-shadow: 0 0 8px rgba(254,125,255,0.25);
+  box-shadow: 0 0 8px rgba(255,128,247,0.28);
 }
 @media (max-width: 600px) { .trail::before { left: 16px; } }
 .ev {
@@ -460,7 +485,8 @@ section.s::after {
       0 0 0 4px var(--sky-deep),
       0 0 0 5px rgba(255,255,255,0.3),
       0 0 12px 2px rgba(255,90,139,0.6),
-      0 0 0 0 rgba(254,125,255,0);
+      0 0 22px 4px rgba(255,217,69,0.18),
+      0 0 0 0 rgba(255,128,247,0);
     opacity: 1;
   }
   50% {
@@ -468,7 +494,8 @@ section.s::after {
       0 0 0 4px var(--sky-deep),
       0 0 0 5px rgba(255,255,255,0.5),
       0 0 26px 7px rgba(255,90,139,0.85),
-      0 0 0 16px rgba(254,125,255,0);
+      0 0 36px 10px rgba(255,217,69,0.30),
+      0 0 0 16px rgba(255,128,247,0);
     opacity: 0.85;
   }
 }
@@ -706,25 +733,45 @@ section.s::after {
 }
 .outro .links a:hover { border-bottom-color: var(--bloom); color: var(--bloom-soft); transform: translateX(4px); }
 .outro .cta-card {
-  border: 1px solid var(--bloom);
+  position: relative;
+  border: 1px solid rgba(255, 168, 246, 0.55);
   padding: 28px 24px;
   background:
-    radial-gradient(120% 140% at 0% 0%, rgba(254,125,255,0.32) 0%, rgba(254,125,255,0) 55%),
-    var(--night);
+    radial-gradient(140% 160% at 0% 0%, rgba(255,128,247,0.34) 0%, rgba(255,128,247,0) 60%),
+    rgba(11, 35, 78, 0.55);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
   color: var(--fg);
   transform-style: preserve-3d;
   transition: transform 0.6s cubic-bezier(.22,1,.36,1), box-shadow 0.6s ease;
   box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    inset 0 0 32px rgba(255,128,247,0.10),
     0 4px 8px rgba(0,0,0,0.22),
-    0 24px 48px rgba(0,0,0,0.36),
-    0 60px 120px -20px rgba(254,125,255,0.40);
+    0 16px 40px rgba(0,0,0,0.36),
+    0 40px 100px -20px rgba(255,128,247,0.40);
 }
+/* matte grain on the cta card */
+.outro .cta-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+.outro .cta-card > * { position: relative; z-index: 1; }
 .outro .cta-card:hover {
   transform: translateZ(60px) translateY(-12px) rotateX(-4deg);
   box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    inset 0 0 40px rgba(255,128,247,0.14),
     0 8px 16px rgba(0,0,0,0.26),
     0 40px 80px rgba(0,0,0,0.42),
-    0 100px 180px -20px rgba(254,125,255,0.55);
+    0 100px 180px -20px rgba(255,128,247,0.55);
 }
 .outro .cta-card .lab {
   font-family: var(--round);
@@ -811,9 +858,21 @@ footer.foot .sig {
   }
 }
 
+/* ---------- Reactive comet cursor ---------- */
+.comet-cursor {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+
 /* ---------- Print ---------- */
 @media print {
   .outro .cta-card { display: none; }
+  .comet-cursor { display: none !important; }
   body {
     background: #fff !important;
     color: #000 !important;

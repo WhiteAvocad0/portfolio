@@ -9,8 +9,8 @@ export const profile = {
   swipeWord: 'enterprise',
   languages: 'EN · 中 · BM',
   about: {
-    lead: 'Final-year IT student at Asia Pacific University. Curious about systems of every kind — networks, code, homelab rigs, camera bodies, the occasional flight simulator.',
-    note: 'Red Hat certified on Linux fundamentals, with a foundation in networking, programming, and databases. Comfortable across Windows, macOS, and Linux — trilingual in English, Mandarin, and Bahasa Malaysia. Looking for a graduate IT support role where I can keep learning from senior engineers.',
+    lead: 'Final-year IT student at Asia Pacific University. Curious about systems of every kind — networks, code, homelab rigs, lenses pointed at the night sky.',
+    note: 'Red Hat certified on Linux fundamentals, with a foundation in networking, programming, and databases. Comfortable across Windows, macOS, and Linux — trilingual in English, Mandarin, and Bahasa Malaysia. Off the clock you’ll find me chasing comets through a telescope or shooting portraits and food on assignment. Looking for a graduate IT support role where I can keep learning from senior engineers.',
   },
   cta: {
     label: 'Currently',
