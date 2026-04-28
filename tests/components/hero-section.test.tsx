@@ -10,17 +10,20 @@ describe('HeroSection', () => {
     expect(h1).toHaveTextContent(/Woon/);
   });
 
-  it('renders the at-a-glance id-card with status, location, and email', () => {
+  it('renders the at-a-glance id-card with status, location, languages, and email', () => {
     render(<HeroSection />);
     expect(screen.getByLabelText(/at a glance/i)).toBeInTheDocument();
     expect(screen.getByText(/Open · Sept 2026/)).toBeInTheDocument();
     expect(screen.getByText(/Kuala Lumpur, MY/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /hello@jeremywoon\.dev/ })).toBeInTheDocument();
+    expect(screen.getByText(/EN · 中 · BM/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /tp073616@mail\.apu\.edu\.my/ })
+    ).toBeInTheDocument();
   });
 
   it('renders the swipe-highlighted role keyword', () => {
     const { container } = render(<HeroSection />);
-    expect(container.querySelector('.swipe')).toHaveTextContent('software');
+    expect(container.querySelector('.swipe')).toHaveTextContent('enterprise');
   });
 
   it('renders the avatar placeholder image', () => {

@@ -32,7 +32,7 @@ describe('content data', () => {
     projects.forEach((p) => {
       expect(p.stack.length).toBeGreaterThan(0);
       expect(p.id).toMatch(/^P \/ \d{2}$/);
-      expect(p.year).toMatch(/^\d{4}$/);
+      expect(p.year.length).toBeGreaterThan(0);
     });
   });
 

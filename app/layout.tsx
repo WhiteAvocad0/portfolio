@@ -23,12 +23,13 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://jeremywoon.dev'),
-  title: 'Jeremy Woon — Final-year IT student & developer',
+  title: 'Jeremy Woon — Final-year IT student & support specialist',
   description:
-    'Portfolio of Jeremy Woon, a final-year Information Technology student at APU. Available for graduate SWE roles starting September 2026.',
+    'Portfolio of Jeremy Woon, a final-year Information Technology student at APU. 16-week corporate IT support internship at MunchWorld Marketing; Red Hat certified (RH124, RH104). Available for graduate IT support roles from September 2026.',
   openGraph: {
     title: 'Jeremy Woon — Portfolio',
-    description: 'Final-year IT student at APU. Open to graduate SWE roles.',
+    description:
+      'Final-year IT student at APU. 16-week corporate IT support internship; Red Hat certified. Open to graduate IT support roles.',
     url: 'https://jeremywoon.dev',
     siteName: 'Jeremy Woon',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
@@ -38,7 +39,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Jeremy Woon — Portfolio',
-    description: 'Final-year IT student at APU. Open to graduate SWE roles.',
+    description:
+      'Final-year IT student at APU. 16-week corporate IT support internship; Red Hat certified. Open to graduate IT support roles.',
     images: ['/og-image.png'],
   },
   robots: { index: true, follow: true },
@@ -59,9 +61,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'Person',
-              name: 'Jeremy Woon',
+              name: 'Jeremy Woon Zhe Ming',
+              alternateName: 'Jeremy Woon',
               url: 'https://jeremywoon.dev',
-              jobTitle: 'Software Engineering Student',
+              email: 'mailto:tp073616@mail.apu.edu.my',
+              jobTitle: 'Information Technology Student',
               alumniOf: {
                 '@type': 'CollegeOrUniversity',
                 name: 'Asia Pacific University of Technology and Innovation',
@@ -71,6 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 addressLocality: 'Kuala Lumpur',
                 addressCountry: 'MY',
               },
+              knowsLanguage: ['en', 'zh', 'ms'],
             }),
           }}
         />

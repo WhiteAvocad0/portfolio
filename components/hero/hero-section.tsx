@@ -17,8 +17,8 @@ export function HeroSection() {
               <em>Woon.</em>
             </h1>
             <p className="tagline reveal">
-              A final-year IT student building{' '}
-              <span className="swipe">{profile.swipeWord}</span> for the web — based in {profile.city}.
+              A final-year IT student supporting{' '}
+              <span className="swipe">{profile.swipeWord}</span> systems — based in {profile.city}.
             </p>
           </div>
 
@@ -42,6 +42,8 @@ export function HeroSection() {
               <dd className="live">{profile.status}</dd>
               <dt>Based</dt>
               <dd>{profile.location}</dd>
+              <dt>Languages</dt>
+              <dd>{profile.languages}</dd>
               <dt>Email</dt>
               <dd>
                 <a href={`mailto:${contact.email}`}>{contact.email}</a>

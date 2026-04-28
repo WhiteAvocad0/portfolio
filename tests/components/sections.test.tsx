@@ -18,8 +18,8 @@ describe('AboutSection', () => {
 describe('SkillsSection', () => {
   it('renders both skill groups with bars carrying --w', () => {
     const { container } = render(<SkillsSection />);
-    expect(screen.getByText('Languages & Frameworks')).toBeInTheDocument();
-    expect(screen.getByText('Infra & Tools')).toBeInTheDocument();
+    expect(screen.getByText('Enterprise IT')).toBeInTheDocument();
+    expect(screen.getByText('Systems & Code')).toBeInTheDocument();
     const bars = container.querySelectorAll<HTMLElement>('.bar');
     expect(bars.length).toBeGreaterThan(0);
     expect(bars[0].style.getPropertyValue('--w')).toMatch(/%$/);
@@ -46,8 +46,8 @@ describe('ContactSection', () => {
   it('renders the email link and the CTA card', () => {
     const { container } = render(<ContactSection />);
     expect(
-      screen.getByRole('link', { name: /hello@jeremywoon\.dev/ })
-    ).toBeInTheDocument();
+      screen.getAllByRole('link', { name: /tp073616@mail\.apu\.edu\.my/ }).length
+    ).toBeGreaterThan(0);
     expect(container.querySelector('.cta-card')).toBeTruthy();
   });
 });
