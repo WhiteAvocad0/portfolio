@@ -9,8 +9,8 @@ export const profile = {
   swipeWord: 'enterprise',
   languages: 'EN · 中 · BM',
   about: {
-    lead: 'Final-year Information Technology student at Asia Pacific University (APU). 16 weeks of corporate IT support at MunchWorld Marketing — helpdesk, multi-site PC refresh, VPN migration to Palo Alto, and CrowdStrike EDR rollout.',
-    note: 'Comfortable with both terminals and tickets — Red Hat certified (RH124, RH104), with coursework across networking, programming, databases, and web. Open to graduate IT support roles where I can keep learning from senior engineers.',
+    lead: 'Final-year IT student at Asia Pacific University — equally at home in a server rack and a code editor.',
+    note: 'Internship experience in corporate IT support, Red Hat certified on Linux fundamentals, and coursework across networking, programming, databases, and web. Looking for a graduate IT support role where I can keep learning from senior engineers.',
   },
   cta: {
     label: 'Currently',
