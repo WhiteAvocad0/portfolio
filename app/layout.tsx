@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Instrument_Serif, JetBrains_Mono } from 'next/font/google';
+import { Inter, Instrument_Serif, JetBrains_Mono, Varela_Round } from 'next/font/google';
 import './globals.css';
 
 const sans = Inter({
@@ -18,6 +18,13 @@ const display = Instrument_Serif({
 const mono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
+  display: 'swap',
+});
+
+const round = Varela_Round({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-round',
   display: 'swap',
 });
 
@@ -48,7 +55,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable} ${round.variable}`}>
       <head>
         <noscript>
           <style>{`.reveal{opacity:1!important;transform:none!important;}.skill-list .bar::after{width:var(--w,60%)!important;}`}</style>
