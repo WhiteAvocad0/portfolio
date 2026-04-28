@@ -1,25 +1,43 @@
 import { skills } from '@/lib/data';
-import { Section } from '@/components/layout/section';
 
 export function SkillsSection() {
   return (
-    <Section id="skills" number="03" title="Skills">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-14 max-w-4xl">
-        {skills.map(group => (
-          <div key={group.group}>
-            <p className="font-mono text-xs text-muted uppercase tracking-wider mb-4">
-              {group.group}
-            </p>
-            <ul className="space-y-2">
-              {group.items.map(item => (
-                <li key={item} className="font-display text-xl md:text-2xl">
-                  {item}
-                </li>
-              ))}
-            </ul>
+    <section className="s" id="skills">
+      <div className="wrap">
+        <div className="head reveal">
+          <div className="label">
+            <span className="num">02</span>
+            <span>Skills</span>
           </div>
-        ))}
+          <h2>
+            What I <em>actually</em> use.
+          </h2>
+        </div>
+        <div className="skills-grid">
+          <div className="empty" />
+          <div className="skills-cols reveal">
+            {skills.map((group) => (
+              <div className="skill-group" key={group.title}>
+                <div className="gtitle">{group.title}</div>
+                <ul className="skill-list" data-bars>
+                  {group.items.map((item) => (
+                    <li key={item.name}>
+                      <div className="row">
+                        <span className="name">{item.name}</span>
+                        <span className="yrs">{item.years}</span>
+                      </div>
+                      <div
+                        className="bar"
+                        style={{ '--w': `${item.pct}%` } as React.CSSProperties}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </Section>
+    </section>
   );
 }

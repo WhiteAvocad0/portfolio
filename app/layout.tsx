@@ -47,6 +47,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
+      <head>
+        <noscript>
+          <style>{`.reveal{opacity:1!important;transform:none!important;}.skill-list .bar::after{width:var(--w,60%)!important;}`}</style>
+        </noscript>
+      </head>
       <body>
         <script
           type="application/ld+json"

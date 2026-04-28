@@ -1,31 +1,25 @@
 import { HeroSection } from '@/components/hero/hero-section';
 import { AboutSection } from '@/components/sections/about-section';
-import { EducationSection } from '@/components/sections/education-section';
 import { SkillsSection } from '@/components/sections/skills-section';
+import { TrailSection } from '@/components/sections/trail-section';
 import { ProjectsSection } from '@/components/sections/projects-section';
-import { ExperienceSection } from '@/components/sections/experience-section';
-import { CertificationsSection } from '@/components/sections/certifications-section';
 import { ContactSection } from '@/components/sections/contact-section';
 import { Footer } from '@/components/sections/footer';
-import { CustomCursor } from '@/components/navigation/custom-cursor';
-import { ScrollProgress } from '@/components/navigation/scroll-progress';
+import { DepthEffects } from '@/components/effects/depth-effects';
 
 export default function Home() {
   return (
     <>
-      <CustomCursor />
-      <ScrollProgress />
       <main>
         <HeroSection />
         <AboutSection />
-        <EducationSection />
         <SkillsSection />
+        <TrailSection />
         <ProjectsSection />
-        <ExperienceSection />
-        <CertificationsSection />
         <ContactSection />
       </main>
       <Footer />
+      <DepthEffects />
     </>
   );
 }
