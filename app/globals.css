@@ -465,24 +465,50 @@ section.s::after {
   padding-left: 100px;
 }
 @media (max-width: 600px) { .trail { padding-left: 24px; } }
+/* Trail as a transmission tower: spine reaches above the first event as a
+   tapered antenna mast, with a cap and signal pulse at the very top, then
+   continues down through the timeline as the lattice tower's central beam. */
 .trail::before {
   content: '';
   position: absolute;
-  left: 92px; top: 8px; bottom: 8px;
+  left: 92px; top: -80px; bottom: 8px;
   width: 1px;
   background: linear-gradient(180deg,
-    var(--comet) 0%,
-    var(--bloom) 6%,
-    var(--bloom-soft) 14%,
-    rgba(255,128,247,0.40) 28%,
-    rgba(255,255,255,0.22) 60%,
-    rgba(255,255,255,0.10) 100%);
+    transparent 0,
+    transparent 40px,
+    rgba(255, 255, 255, 0.15) 70px,
+    var(--comet) 88px,
+    var(--bloom) 100px,
+    var(--bloom-soft) 130px,
+    rgba(255, 128, 247, 0.40) 220px,
+    rgba(255, 255, 255, 0.22) 55%,
+    rgba(255, 255, 255, 0.10) 100%);
   box-shadow:
     0 0 6px rgba(255, 217, 69, 0.5),
     0 0 16px rgba(255, 128, 247, 0.45),
     0 0 32px rgba(255, 128, 247, 0.20);
 }
-@media (max-width: 600px) { .trail::before { left: 16px; } }
+/* Antenna tip cap — tiny luminous dot at the very top of the mast */
+.trail::after {
+  content: '';
+  position: absolute;
+  left: 89.5px;
+  top: -88px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bloom-soft);
+  box-shadow:
+    0 0 8px rgba(255, 168, 244, 0.95),
+    0 0 22px rgba(255, 128, 247, 0.70),
+    0 0 44px rgba(255, 128, 247, 0.40),
+    0 0 80px rgba(255, 128, 247, 0.18);
+  opacity: 1;
+}
+@media (max-width: 600px) {
+  .trail::before { left: 16px; }
+  .trail::after { left: 14.5px; }
+}
 .ev {
   position: relative;
   padding-bottom: clamp(28px, 4vw, 48px);
@@ -498,50 +524,114 @@ section.s::after {
   border-radius: 50%;
   transition: transform 0.4s cubic-bezier(.22,1,.36,1), box-shadow 0.4s ease;
   box-shadow: 0 2px 4px rgba(0,0,0,0.24);
+  z-index: 2;
 }
 @media (max-width: 600px) { .ev::before { left: -23px; } }
+/* Cross-arm truss — extends leftward from each non-live dot toward the
+   year column, suggesting the antenna tower's lattice structure. */
+.ev::after {
+  content: '';
+  position: absolute;
+  left: -62px; top: 17px;
+  width: 46px; height: 1px;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.10) 25%,
+    rgba(255, 255, 255, 0.42) 100%);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.20);
+  pointer-events: none;
+  z-index: 1;
+}
+@media (max-width: 600px) { .ev::after { display: none; } }
 .ev.now::before {
-  background: var(--pulse);
-  border-color: var(--pulse);
-  width: 12px;
-  height: 12px;
-  transform: translateZ(20px) scale(1.2);
+  background: color(display-p3 1 0.18 0.27);
+  border-color: color(display-p3 1 0.18 0.27);
+  width: 7px;
+  height: 7px;
+  left: -12px;
+  top: 13px;
+  transform: translateZ(20px) scale(1.05);
   animation: signal-pulse 1.8s linear infinite;
 }
-/* Signal-tower beacon: fast fade-in, brief peak, fast fade-out, long dwell off.
-   Dot bg / border stay solid throughout so the trail spine is never visible
-   through the dot — only the surrounding glow halo varies. The 4px ring of
-   --sky-deep masks the spine where the dot sits. Peak is bright. */
+/* HDR-feel additive bloom layer — sits over the dot, plus-lighter blends
+   its glow with the body sky so the peak appears to overshoot white on
+   capable displays. Replaces the cross-arm on the live event. */
+.ev.now::after {
+  content: '';
+  position: absolute;
+  left: -12px; top: 13px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: transparent;
+  mix-blend-mode: plus-lighter;
+  animation: signal-bloom 1.8s linear infinite;
+  z-index: 2;
+}
+@media (max-width: 600px) { .ev.now::after { left: -21px; } }
+/* Signal-tower beacon — the dot itself ignites.
+   Two animations run together: signal-pulse drives the dot's own bg color
+   (dim red → white-hot → dim red) and a tight halo, while signal-bloom
+   on .ev.now::after additively layers a wide HDR-feel halo via
+   plus-lighter blending. P3 colors push past sRGB on capable displays. */
 @keyframes signal-pulse {
   0% {
+    background: color(display-p3 1 0.18 0.27);
     box-shadow:
       0 0 0 4px var(--sky-deep),
       0 0 0 5px rgba(255, 255, 255, 0.18),
       0 0 4px 0 rgba(255, 49, 70, 0);
+    filter: brightness(1);
+  }
+  6% {
+    background: color(display-p3 1 1 1);
+    box-shadow:
+      0 0 0 4px var(--sky-deep),
+      0 0 0 5px color(display-p3 1 1 1 / 1),
+      0 0 0 8px color(display-p3 1 0.7 0.97 / 0.65),
+      0 0 12px 3px color(display-p3 1 1 1 / 0.95);
+    filter: brightness(1.7);
+  }
+  14% {
+    background: color(display-p3 1 1 1);
+    box-shadow:
+      0 0 0 4px var(--sky-deep),
+      0 0 0 5px color(display-p3 1 1 1 / 1),
+      0 0 0 10px color(display-p3 1 0.7 0.97 / 0.78),
+      0 0 16px 4px color(display-p3 1 1 1 / 1);
+    filter: brightness(1.9);
+  }
+  22%, 100% {
+    background: color(display-p3 1 0.18 0.27);
+    box-shadow:
+      0 0 0 4px var(--sky-deep),
+      0 0 0 5px rgba(255, 255, 255, 0.18),
+      0 0 4px 0 rgba(255, 49, 70, 0);
+    filter: brightness(1);
+  }
+}
+
+/* HDR-feel additive bloom — wide colored halo, plus-lighter blended */
+@keyframes signal-bloom {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(255, 49, 70, 0);
   }
   6% {
     box-shadow:
-      0 0 0 4px var(--sky-deep),
-      0 0 0 5px rgba(255, 255, 255, 0.95),
-      0 0 0 8px rgba(255, 255, 255, 0.45),
-      0 0 40px 12px rgba(255, 49, 70, 1),
-      0 0 64px 28px rgba(255, 217, 69, 0.8),
-      0 0 100px 48px rgba(255, 49, 70, 0.45);
+      0 0 36px 10px color(display-p3 1 0.18 0.27 / 0.95),
+      0 0 64px 24px color(display-p3 1 0.85 0.27 / 0.75),
+      0 0 110px 48px color(display-p3 1 0.18 0.27 / 0.40);
   }
   14% {
     box-shadow:
-      0 0 0 4px var(--sky-deep),
-      0 0 0 5px rgba(255, 255, 255, 1),
-      0 0 0 9px rgba(255, 255, 255, 0.65),
-      0 0 50px 14px rgba(255, 49, 70, 1),
-      0 0 80px 32px rgba(255, 217, 69, 0.95),
-      0 0 130px 60px rgba(255, 49, 70, 0.55);
+      0 0 50px 14px color(display-p3 1 0.18 0.27 / 1),
+      0 0 90px 32px color(display-p3 1 0.85 0.27 / 0.95),
+      0 0 160px 70px color(display-p3 1 0.18 0.27 / 0.55);
   }
   22%, 100% {
     box-shadow:
-      0 0 0 4px var(--sky-deep),
-      0 0 0 5px rgba(255, 255, 255, 0.18),
-      0 0 4px 0 rgba(255, 49, 70, 0);
+      0 0 0 0 rgba(255, 49, 70, 0);
   }
 }
 .ev .yr {
@@ -938,6 +1028,7 @@ footer.foot .sig {
   .skill-list .bar::after { width: var(--w, 60%) !important; background: #000 !important; box-shadow: none !important; }
   .hero .id-card { background: #f5f5f5 !important; color: #000 !important; box-shadow: none !important; border-color: #999 !important; }
   .hero .id-card dt, .hero .id-card dd, .hero .id-card .live { color: #000 !important; }
-  .ev::before, .ev.now::before { background: #000 !important; border-color: #000 !important; box-shadow: none !important; animation: none !important; }
-  .trail::before { background: #999 !important; box-shadow: none !important; }
+  .ev::before, .ev.now::before { background: #000 !important; border-color: #000 !important; box-shadow: none !important; animation: none !important; filter: none !important; }
+  .ev::after, .ev.now::after, .trail::after { display: none !important; }
+  .trail::before { background: #999 !important; box-shadow: none !important; top: 8px !important; }
 }
