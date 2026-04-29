@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Instrument_Serif, JetBrains_Mono, Varela_Round } from 'next/font/google';
 import './globals.css';
 import { profile } from '@/lib/data';
@@ -57,6 +57,11 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+export const viewport: Viewport = {
+  themeColor: '#0B3272',
+  colorScheme: 'dark',
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable} ${round.variable}`}>
@@ -66,6 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
       </head>
       <body>
+        <a className="skip-link" href="#about">Skip to content</a>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -95,6 +95,28 @@ body::after {
   z-index: 1;
 }
 
+/* Visible on keyboard focus only — lets keyboard / screen-reader users
+   bypass the decorative hero and land directly on textual content. */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  padding: 10px 14px;
+  background: var(--bloom);
+  color: var(--night);
+  font-family: var(--round);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 2px;
+  z-index: 100;
+  transform: translateY(-200%);
+  transition: transform 0.18s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible { transform: translateY(0); }
+
 /* ---------- HERO: deeply layered 3D scene ---------- */
 .hero {
   padding: clamp(60px, 9vw, 140px) 0 clamp(40px, 6vw, 80px);

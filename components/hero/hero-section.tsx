@@ -22,7 +22,7 @@ export function HeroSection() {
             </p>
           </div>
 
-          <aside className="id-card reveal" aria-label="At a glance">
+          <aside className="id-card reveal" aria-labelledby="id-card-heading">
             {/* Replace /public/avatar.svg with your photo (square, ~400×400+).
                 Keep the file name avatar.svg, or swap the src below. */}
             <div className="avatar">
@@ -35,7 +35,7 @@ export function HeroSection() {
               />
             </div>
             <div className="head">
-              <span>At a glance</span>
+              <span id="id-card-heading">At a glance</span>
             </div>
             <dl>
               <dt>Status</dt>

@@ -7,7 +7,9 @@ export function Footer() {
       <span>
         © {year} {profile.name}
       </span>
-      <span className="sig">{profile.name}</span>
+      <span className="sig" aria-hidden="true">
+        {profile.name}
+      </span>
     </footer>
   );
 }
