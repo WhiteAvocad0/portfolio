@@ -2,16 +2,14 @@
 
 Personal portfolio of Jeremy Woon — final-year IT student at Asia Pacific University of Technology and Innovation (APU), graduating 2026.
 
-**Live:** https://portfolio-xi-six-56.vercel.app
-
-A single-page editorial portfolio built with monochrome typography (Instrument Serif + Inter + JetBrains Mono), brutalist section numerals, and quiet interaction details (custom cursor, magnetic links, scroll-driven reveals).
+A single-page editorial portfolio with serif display type (Instrument Serif), Inter for body, JetBrains Mono for numerals, and Varela Round for labels. Scroll-driven 3D parallax, IntersectionObserver-based reveals, and a transmission-tower timeline motif.
 
 ## Stack
 
-- Next.js 16 (App Router) · TypeScript
-- Tailwind CSS v4 (CSS `@theme` tokens)
-- Framer Motion (`motion/react`)
-- Vitest + @testing-library/react
+- Next.js 16 (App Router, Turbopack) · React 19 · TypeScript
+- Plain CSS (CSS custom properties; no utility framework)
+- `next/font/google` — Inter, Instrument Serif, JetBrains Mono, Varela Round
+- Vitest + @testing-library/react (unit + component)
 - Playwright (smoke E2E)
 - Vercel
 
@@ -37,25 +35,39 @@ npm run build
 ## Project structure
 
 ```
-app/                    Next.js App Router (layout, page, sitemap, robots, icon)
+app/
+  layout.tsx              Fonts, metadata, JSON-LD, root <html>
+  page.tsx                Composes hero + sections + footer + DepthEffects
+  globals.css             All styles (no Tailwind/utility framework)
+  sitemap.ts · robots.ts · icon.svg
 components/
-  hero/                 NameReveal · HighlighterSwipe · StatusBlock · HeroSection
-  layout/               Section · SectionNumeral · LineReveal
-  navigation/           CustomCursor · MagneticLink · ScrollProgress
-  sections/             About · Education · Skills · Projects · Experience · Certifications · Contact · Footer
+  hero/hero-section.tsx   Page hero with at-a-glance id-card
+  sections/
+    about-section.tsx     01 · About
+    skills-section.tsx    02 · Skills (weighted bars)
+    trail-section.tsx     03 · Trail (education + work + certs, merged)
+    projects-section.tsx  04 · Projects (list with optional anchor wrap)
+    contact-section.tsx   05 · Contact
+    footer.tsx
+  effects/
+    depth-effects.tsx     Client-only: scroll-driven parallax + reveal IO
 lib/
-  data.ts               Single source of truth for all content (swap dummy → real here)
-  hooks/                useTouchDevice · useMousePosition · useMagnetic · useReducedMotion
-public/                 resume.pdf (placeholder) · og-image.png (placeholder)
+  data.ts                 Single source of truth (profile, skills, trail, projects, sectionMeta)
+  site.ts                 SITE_URL with NEXT_PUBLIC_SITE_URL override
+public/                   avatar.svg · stars.svg · resume.pdf · og-image.png
 tests/
-  unit/                 hooks + data
-  components/           component-level tests
-  e2e/                  Playwright smoke
-docs/superpowers/       design spec + implementation plan
+  unit/                   Data-shape assertions
+  components/             Render assertions for hero + each section
+  e2e/                    Playwright smoke
+docs/superpowers/         Design spec + implementation plan
 ```
 
 ## Replacing the dummy content
 
-All copy lives in `lib/data.ts`. Edit the `profile`, `education`, `skills`, `projects`, `experience`, and `certifications` exports — every section reads from there.
+All copy lives in `lib/data.ts`. Edit `profile`, `skills`, `trail`, `projects`, and `sectionMeta` — every component reads from there.
 
-For the resume PDF and OG image, replace `public/resume.pdf` and `public/og-image.png` with real files (same paths).
+Before launch, also replace:
+- `public/resume.pdf` — placeholder is a 15-byte stub PDF
+- `public/og-image.png` — placeholder
+- `profile.contact.github*` and `profile.contact.linkedin*` — placeholders flagged in `lib/data.ts`
+- Set `NEXT_PUBLIC_SITE_URL` if the production host isn't `https://jeremywoon.dev`

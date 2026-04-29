@@ -1,7 +1,8 @@
-import { profile } from '@/lib/data';
+import { profile, sectionMeta } from '@/lib/data';
 
 export function ContactSection() {
   const { contact, cta } = profile;
+  const meta = sectionMeta.contact;
   const links = [
     { label: 'Email', href: `mailto:${contact.email}`, text: `${contact.email} →`, external: false },
     { label: 'GitHub', href: contact.githubUrl, text: `${contact.github} →`, external: true },
@@ -14,8 +15,8 @@ export function ContactSection() {
       <div className="wrap">
         <div className="head reveal" style={{ marginBottom: 24 }}>
           <div className="label">
-            <span className="num">05</span>
-            <span>Contact</span>
+            <span className="num">{meta.number}</span>
+            <span>{meta.label}</span>
           </div>
           <span />
         </div>

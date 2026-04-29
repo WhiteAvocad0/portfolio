@@ -732,7 +732,6 @@ section.s::after {
   padding: clamp(20px, 3vw, 32px) 0;
   border-bottom: 1px solid var(--rule);
   align-items: baseline;
-  cursor: pointer;
   text-decoration: none;
   color: inherit;
   background: transparent;
@@ -741,7 +740,8 @@ section.s::after {
   transition: padding 0.4s ease, transform 0.6s cubic-bezier(.22,1,.36,1), box-shadow 0.6s ease, background 0.4s ease;
   will-change: transform, box-shadow;
 }
-.proj-row:hover {
+a.proj-row { cursor: pointer; }
+a.proj-row:hover {
   padding-left: 16px;
   transform: translateZ(60px) translateY(-6px);
   background:
@@ -754,7 +754,7 @@ section.s::after {
     0 80px 140px -20px rgba(254,125,255,0.30);
   z-index: 5;
 }
-.proj-row:hover + .proj-row { border-top-color: transparent; }
+a.proj-row:hover + li > .proj-row { border-top-color: transparent; }
 .proj-row .id {
   font-family: var(--round);
   font-size: 11px;
@@ -791,7 +791,7 @@ section.s::after {
   transition: transform 0.25s ease, color 0.25s ease;
   font-size: 0.8em;
 }
-.proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloom); }
+a.proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloom); }
 .proj-row .body p {
   font-family: var(--sans);
   font-size: 14.5px;

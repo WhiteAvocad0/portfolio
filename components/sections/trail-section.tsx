@@ -1,14 +1,15 @@
 import { Fragment } from 'react';
-import { trail } from '@/lib/data';
+import { trail, sectionMeta } from '@/lib/data';
 
 export function TrailSection() {
+  const meta = sectionMeta.trail;
   return (
     <section className="s" id="trail">
       <div className="wrap">
         <div className="head reveal">
           <div className="label">
-            <span className="num">03</span>
-            <span>Trail</span>
+            <span className="num">{meta.number}</span>
+            <span>{meta.label}</span>
           </div>
           <h2>
             Education, work, <em>milestones.</em>

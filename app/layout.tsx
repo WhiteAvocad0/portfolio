@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import { Inter, Instrument_Serif, JetBrains_Mono, Varela_Round } from 'next/font/google';
 import './globals.css';
+import { profile } from '@/lib/data';
+import { SITE_URL } from '@/lib/site';
 
 const sans = Inter({
   subsets: ['latin'],
+  weight: ['400', '500'],
   variable: '--font-sans',
   display: 'swap',
 });
@@ -17,6 +20,7 @@ const display = Instrument_Serif({
 
 const mono = JetBrains_Mono({
   subsets: ['latin'],
+  weight: ['300', '400'],
   variable: '--font-mono',
   display: 'swap',
 });
@@ -29,7 +33,7 @@ const round = Varela_Round({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://jeremywoon.dev'),
+  metadataBase: new URL(SITE_URL),
   title: 'Jeremy Woon — Final-year IT student & support specialist',
   description:
     'Portfolio of Jeremy Woon, a final-year Information Technology student at APU. 16-week corporate IT support internship at MunchWorld Marketing; Red Hat certified (RH124, RH104). Available for graduate IT support roles from September 2026.',
@@ -37,7 +41,7 @@ export const metadata: Metadata = {
     title: 'Jeremy Woon — Portfolio',
     description:
       'Final-year IT student at APU. 16-week corporate IT support internship; Red Hat certified. Open to graduate IT support roles.',
-    url: 'https://jeremywoon.dev',
+    url: SITE_URL,
     siteName: 'Jeremy Woon',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
     locale: 'en_US',
@@ -68,10 +72,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'Person',
-              name: 'Jeremy Woon Zhe Ming',
-              alternateName: 'Jeremy Woon',
-              url: 'https://jeremywoon.dev',
-              email: 'mailto:tp073616@mail.apu.edu.my',
+              name: profile.fullName,
+              alternateName: profile.name,
+              url: SITE_URL,
+              email: profile.contact.email,
               jobTitle: 'Information Technology Student',
               alumniOf: {
                 '@type': 'CollegeOrUniversity',

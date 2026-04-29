@@ -35,10 +35,15 @@ describe('TrailSection', () => {
 });
 
 describe('ProjectsSection', () => {
-  it('renders three project rows as anchor links', () => {
+  it('renders three project rows', () => {
     const { container } = render(<ProjectsSection />);
-    const rows = container.querySelectorAll('a.proj-row');
+    const rows = container.querySelectorAll('.proj-row');
     expect(rows).toHaveLength(3);
+  });
+
+  it('does not render placeholder "#" anchors', () => {
+    const { container } = render(<ProjectsSection />);
+    expect(container.querySelector('a.proj-row[href="#"]')).toBeNull();
   });
 });
 

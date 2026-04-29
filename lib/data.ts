@@ -141,7 +141,7 @@ export type Project = {
   readonly subtitle: string;
   readonly description: string;
   readonly stack: readonly string[];
-  readonly href: string;
+  readonly href?: string;
 };
 
 export const projects: readonly Project[] = [
@@ -153,7 +153,6 @@ export const projects: readonly Project[] = [
     description:
       'Java + Swing GUI for hall reservations with role-based access control, authentication, file-backed persistence, and backup/restore plus system-init checks.',
     stack: ['Java · Swing', 'File I/O', 'RBAC'],
-    href: '#',
   },
   {
     id: 'P / 02',
@@ -163,7 +162,6 @@ export const projects: readonly Project[] = [
     description:
       'iOS app in Swift with Firebase backend — user authentication, real-time data, and media management. Built end-to-end while teaching myself Swift and backend integration.',
     stack: ['Swift · iOS', 'Firebase', 'Auth · Realtime'],
-    href: '#',
   },
   {
     id: 'P / 03',
@@ -173,14 +171,15 @@ export const projects: readonly Project[] = [
     description:
       'Hand-built PCs and a TrueNAS storage server. Configured multiple operating systems including Hackintosh, customised HP workstation hardware — the kind of homelab work that backs up the helpdesk skills.',
     stack: ['TrueNAS', 'Hackintosh', 'HP HW'],
-    href: '#',
   },
 ] as const;
 
-export const sections = [
-  { number: '01', label: 'About' },
-  { number: '02', label: 'Skills' },
-  { number: '03', label: 'Trail' },
-  { number: '04', label: 'Projects' },
-  { number: '05', label: 'Contact' },
-] as const;
+export const sectionMeta = {
+  about: { number: '01', label: 'About' },
+  skills: { number: '02', label: 'Skills' },
+  trail: { number: '03', label: 'Trail' },
+  projects: { number: '04', label: 'Projects' },
+  contact: { number: '05', label: 'Contact' },
+} as const;
+
+export type SectionKey = keyof typeof sectionMeta;

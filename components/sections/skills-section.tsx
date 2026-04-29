@@ -1,13 +1,14 @@
-import { skills } from '@/lib/data';
+import { skills, sectionMeta } from '@/lib/data';
 
 export function SkillsSection() {
+  const meta = sectionMeta.skills;
   return (
     <section className="s" id="skills">
       <div className="wrap">
         <div className="head reveal">
           <div className="label">
-            <span className="num">02</span>
-            <span>Skills</span>
+            <span className="num">{meta.number}</span>
+            <span>{meta.label}</span>
           </div>
           <h2>
             What I <em>actually</em> use.
