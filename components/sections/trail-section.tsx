@@ -1,20 +1,17 @@
 import { Fragment } from 'react';
-import { trail, sectionMeta } from '@/lib/data';
+import { trail } from '@/lib/data';
+import { SectionHead, sectionHeadingId } from './section-head';
 
 export function TrailSection() {
-  const meta = sectionMeta.trail;
+  const headingId = sectionHeadingId('trail');
   return (
-    <section className="s" id="trail">
+    <section className="s" id="trail" aria-labelledby={headingId}>
       <div className="wrap">
-        <div className="head reveal">
-          <div className="label">
-            <span className="num">{meta.number}</span>
-            <span>{meta.label}</span>
-          </div>
-          <h2>
+        <SectionHead section="trail">
+          <h2 id={headingId}>
             Education, work, <em>milestones.</em>
           </h2>
-        </div>
+        </SectionHead>
         <div className="trail-grid">
           <div className="empty" />
           <div className="trail reveal">

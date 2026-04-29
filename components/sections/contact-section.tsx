@@ -1,8 +1,9 @@
-import { profile, sectionMeta } from '@/lib/data';
+import { profile } from '@/lib/data';
+import { SectionHead, sectionHeadingId } from './section-head';
 
 export function ContactSection() {
   const { contact, cta } = profile;
-  const meta = sectionMeta.contact;
+  const headingId = sectionHeadingId('contact');
   const links = [
     { label: 'Email', href: `mailto:${contact.email}`, text: `${contact.email} →`, external: false },
     { label: 'GitHub', href: contact.githubUrl, text: `${contact.github} →`, external: true },
@@ -11,16 +12,10 @@ export function ContactSection() {
   ];
 
   return (
-    <section className="outro" id="contact">
+    <section className="outro" id="contact" aria-labelledby={headingId}>
       <div className="wrap">
-        <div className="head reveal" style={{ marginBottom: 24 }}>
-          <div className="label">
-            <span className="num">{meta.number}</span>
-            <span>{meta.label}</span>
-          </div>
-          <span />
-        </div>
-        <h2 className="reveal">
+        <SectionHead section="contact" style={{ marginBottom: 24 }} />
+        <h2 id={headingId} className="reveal">
           Let&apos;s <em>talk.</em>
         </h2>
         <div className="row">

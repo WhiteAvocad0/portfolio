@@ -1,20 +1,17 @@
-import { profile, sectionMeta } from '@/lib/data';
+import { profile } from '@/lib/data';
+import { SectionHead, sectionHeadingId } from './section-head';
 
 export function AboutSection() {
   const { about } = profile;
-  const meta = sectionMeta.about;
+  const headingId = sectionHeadingId('about');
   return (
-    <section className="s" id="about">
+    <section className="s" id="about" aria-labelledby={headingId}>
       <div className="wrap">
-        <div className="head reveal">
-          <div className="label">
-            <span className="num">{meta.number}</span>
-            <span>{meta.label}</span>
-          </div>
-          <h2>
+        <SectionHead section="about">
+          <h2 id={headingId}>
             Code that ships, <em>quietly.</em>
           </h2>
-        </div>
+        </SectionHead>
         <div className="about-grid">
           <div className="empty" />
           <div className="about-body reveal">

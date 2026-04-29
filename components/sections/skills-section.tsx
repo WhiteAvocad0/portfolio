@@ -1,19 +1,16 @@
-import { skills, sectionMeta } from '@/lib/data';
+import { skills } from '@/lib/data';
+import { SectionHead, sectionHeadingId } from './section-head';
 
 export function SkillsSection() {
-  const meta = sectionMeta.skills;
+  const headingId = sectionHeadingId('skills');
   return (
-    <section className="s" id="skills">
+    <section className="s" id="skills" aria-labelledby={headingId}>
       <div className="wrap">
-        <div className="head reveal">
-          <div className="label">
-            <span className="num">{meta.number}</span>
-            <span>{meta.label}</span>
-          </div>
-          <h2>
+        <SectionHead section="skills">
+          <h2 id={headingId}>
             What I <em>actually</em> use.
           </h2>
-        </div>
+        </SectionHead>
         <div className="skills-grid">
           <div className="empty" />
           <div className="skills-cols reveal">

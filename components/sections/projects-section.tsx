@@ -1,4 +1,5 @@
-import { projects, sectionMeta, type Project } from '@/lib/data';
+import { projects, type Project } from '@/lib/data';
+import { SectionHead, sectionHeadingId } from './section-head';
 
 function ProjectRowBody({ p }: { p: Project }) {
   return (
@@ -20,19 +21,15 @@ function ProjectRowBody({ p }: { p: Project }) {
 }
 
 export function ProjectsSection() {
-  const meta = sectionMeta.projects;
+  const headingId = sectionHeadingId('projects');
   return (
-    <section className="s" id="projects">
+    <section className="s" id="projects" aria-labelledby={headingId}>
       <div className="wrap">
-        <div className="head reveal">
-          <div className="label">
-            <span className="num">{meta.number}</span>
-            <span>{meta.label}</span>
-          </div>
-          <h2>
+        <SectionHead section="projects">
+          <h2 id={headingId}>
             Things I&apos;ve <em>actually</em> built.
           </h2>
-        </div>
+        </SectionHead>
         <div className="proj-grid">
           <div className="empty" />
           <ul className="proj-list reveal">
