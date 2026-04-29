@@ -13,6 +13,13 @@ describe('AboutSection', () => {
     expect(screen.getByText('01')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(/code that ships/i);
   });
+
+  it('names the <section> landmark via aria-labelledby pointing at the h2', () => {
+    const { container } = render(<AboutSection />);
+    const section = container.querySelector('section#about');
+    expect(section?.getAttribute('aria-labelledby')).toBe('about-heading');
+    expect(container.querySelector('h2#about-heading')).toBeTruthy();
+  });
 });
 
 describe('SkillsSection', () => {
