@@ -67,11 +67,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable} ${round.variable}`}>
       <head>
         <noscript>
-          <style>{`.reveal{opacity:1!important;transform:none!important;}.skill-list .bar::after{width:var(--w,60%)!important;}`}</style>
+          <style>{`.reveal{opacity:1!important;transform:none!important;}.skill-list .bar > span[data-on]{background:var(--bloom-soft)!important;border-color:rgba(255,168,244,0.45)!important;box-shadow:0 0 4px rgba(255,168,244,0.55),0 0 10px rgba(255,128,247,0.30)!important;}.s .head .label .num,.outro .head .label .num,.s .head .label .num small,.outro .head .label .num small{opacity:1!important;transform:none!important;}`}</style>
         </noscript>
       </head>
       <body>
         <a className="skip-link" href="#about">Skip to content</a>
+        <div className="bg-stars" aria-hidden="true" />
+        <div className="bg-wash" aria-hidden="true" />
+        <div className="bg-buildings" aria-hidden="true" />
+        <div className="bg-harumaki" aria-hidden="true" />
+        <div className="bg-vignette" aria-hidden="true" />
+        <aside className="hud-ticker" aria-hidden="true">
+          <span>LAT 03.13</span>
+          <span>LON 101.69</span>
+          <span>UTC+8</span>
+          <span>STN-KUL</span>
+          <span className="dot" />
+        </aside>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

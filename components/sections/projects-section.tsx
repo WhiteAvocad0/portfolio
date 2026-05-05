@@ -32,7 +32,7 @@ export function ProjectsSection() {
         </SectionHead>
         <div className="proj-grid">
           <div className="empty" />
-          <ul className="proj-list reveal">
+          <ul className="proj-list reveal reveal--settle">
             {projects.map((p) => (
               <li key={p.id}>
                 {p.href ? (

@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="600" viewBox="0 0 2400 600">
+  <defs>
+    <filter id="starBloom" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softHalo" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+    <filter id="ridgeGlow" x="-50%" y="-100%" width="200%" height="300%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <linearGradient id="trail1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0"/>
+      <stop offset="80%" stop-color="white" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="trail2" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="white" stop-opacity="0"/>
+      <stop offset="80%" stop-color="white" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Mountain ridge silhouette with subtle pink horizon glow -->
+  <g>
+    <path d="M 0,510 Q 200,460 400,495 T 800,470 T 1200,440 T 1600,470 T 2000,440 T 2400,475 L 2400,600 L 0,600 Z"
+          fill="rgba(255, 128, 247, 0.06)" filter="url(#ridgeGlow)" />
+    <path d="M 0,510 Q 200,460 400,495 T 800,470 T 1200,440 T 1600,470 T 2000,440 T 2400,475 L 2400,600 L 0,600 Z"
+          fill="#03101F" />
+    <path d="M 0,510 Q 200,460 400,495 T 800,470 T 1200,440 T 1600,470 T 2000,440 T 2400,475"
+          fill="none" stroke="rgba(255, 168, 244, 0.12)" stroke-width="1.2" />
+  </g>
+
+  <!-- Cloud wisps — wide soft ellipses suggesting horizon haze -->
+  <g opacity="0.75">
+    <ellipse cx="600" cy="270" rx="380" ry="20" fill="rgba(255, 255, 255, 0.05)" filter="url(#ridgeGlow)" />
+    <ellipse cx="1500" cy="340" rx="450" ry="24" fill="rgba(255, 168, 244, 0.04)" filter="url(#ridgeGlow)" />
+    <ellipse cx="1900" cy="200" rx="280" ry="16" fill="rgba(255, 255, 255, 0.05)" filter="url(#ridgeGlow)" />
+  </g>
+
+  <!-- Constellation A — top-left, with implied connecting lines -->
+  <g filter="url(#softHalo)">
+    <line x1="180" y1="80" x2="240" y2="120" stroke="rgba(255,255,255,0.10)" stroke-width="0.5"/>
+    <line x1="240" y1="120" x2="320" y2="100" stroke="rgba(255,255,255,0.10)" stroke-width="0.5"/>
+    <line x1="320" y1="100" x2="380" y2="160" stroke="rgba(255,255,255,0.10)" stroke-width="0.5"/>
+    <circle cx="180" cy="80" r="1.2" fill="white" opacity="0.85"/>
+    <circle cx="240" cy="120" r="1.0" fill="white" opacity="0.7"/>
+    <circle cx="320" cy="100" r="1.5" fill="white" opacity="0.95"/>
+    <circle cx="380" cy="160" r="1.1" fill="white" opacity="0.8"/>
+    <circle cx="430" cy="140" r="0.9" fill="white" opacity="0.7"/>
+  </g>
+
+  <!-- Constellation B — top-center triangle -->
+  <g filter="url(#softHalo)">
+    <circle cx="1080" cy="60" r="1.4" fill="white" opacity="0.9"/>
+    <circle cx="1180" cy="120" r="1.6" fill="white" opacity="0.95"/>
+    <circle cx="1000" cy="140" r="1.2" fill="white" opacity="0.85"/>
+  </g>
+
+  <!-- Constellation C — mid-right scattered -->
+  <g filter="url(#softHalo)">
+    <circle cx="1700" cy="80" r="1.0" fill="white" opacity="0.7"/>
+    <circle cx="1750" cy="140" r="1.3" fill="white" opacity="0.9"/>
+    <circle cx="1820" cy="100" r="0.9" fill="white" opacity="0.7"/>
+    <circle cx="1880" cy="180" r="1.1" fill="white" opacity="0.8"/>
+    <circle cx="1950" cy="120" r="0.8" fill="white" opacity="0.6"/>
+    <circle cx="1820" cy="50" r="1.0" fill="white" opacity="0.7"/>
+  </g>
+
+  <!-- Constellation D — mid-left -->
+  <g filter="url(#softHalo)">
+    <circle cx="380" cy="220" r="1.2" fill="white" opacity="0.85"/>
+    <circle cx="450" cy="260" r="0.9" fill="white" opacity="0.7"/>
+    <circle cx="520" cy="210" r="1.1" fill="white" opacity="0.8"/>
+    <circle cx="600" cy="240" r="1.0" fill="white" opacity="0.75"/>
+  </g>
+
+  <!-- Constellation E — lower-right curve -->
+  <g filter="url(#softHalo)">
+    <circle cx="2080" cy="290" r="1.0" fill="white" opacity="0.75"/>
+    <circle cx="2150" cy="320" r="1.2" fill="white" opacity="0.85"/>
+    <circle cx="2220" cy="340" r="0.9" fill="white" opacity="0.7"/>
+    <circle cx="2280" cy="320" r="1.0" fill="white" opacity="0.75"/>
+    <circle cx="2320" cy="280" r="0.8" fill="white" opacity="0.65"/>
+  </g>
+
+  <!-- Prominent named stars with stronger halos -->
+  <g filter="url(#starBloom)">
+    <circle cx="1380" cy="80" r="2.0" fill="white"/>
+    <circle cx="320" cy="370" r="1.6" fill="white"/>
+    <circle cx="2000" cy="380" r="1.5" fill="white"/>
+  </g>
+
+  <!-- Shooting stars with tapered trails -->
+  <g>
+    <line x1="1620" y1="30" x2="1740" y2="140" stroke="url(#trail1)" stroke-width="1.3" opacity="0.7"/>
+    <circle cx="1740" cy="140" r="1.0" fill="white" filter="url(#starBloom)"/>
+    <line x1="850" y1="380" x2="720" y2="290" stroke="url(#trail2)" stroke-width="1.2" opacity="0.6"/>
+    <circle cx="720" cy="290" r="0.9" fill="white" filter="url(#starBloom)"/>
+  </g>
+
+  <!-- Sparse fill stars distributed across the field -->
+  <g>
+    <circle cx="80" cy="40" r="0.5" fill="white" opacity="0.5"/>
+    <circle cx="540" cy="70" r="0.6" fill="white" opacity="0.55"/>
+    <circle cx="700" cy="110" r="0.4" fill="white" opacity="0.4"/>
+    <circle cx="820" cy="180" r="0.5" fill="white" opacity="0.5"/>
+    <circle cx="960" cy="200" r="0.4" fill="white" opacity="0.4"/>
+    <circle cx="1240" cy="180" r="0.6" fill="white" opacity="0.55"/>
+    <circle cx="1330" cy="220" r="0.5" fill="white" opacity="0.5"/>
+    <circle cx="1450" cy="140" r="0.4" fill="white" opacity="0.45"/>
+    <circle cx="1540" cy="260" r="0.5" fill="white" opacity="0.5"/>
+    <circle cx="1640" cy="200" r="0.6" fill="white" opacity="0.55"/>
+    <circle cx="2120" cy="160" r="0.5" fill="white" opacity="0.5"/>
+    <circle cx="2240" cy="220" r="0.4" fill="white" opacity="0.45"/>
+    <circle cx="60" cy="180" r="0.4" fill="white" opacity="0.4"/>
+    <circle cx="120" cy="300" r="0.5" fill="white" opacity="0.5"/>
+    <circle cx="220" cy="340" r="0.4" fill="white" opacity="0.4"/>
+    <circle cx="780" cy="350" r="0.5" fill="white" opacity="0.5"/>
+    <circle cx="1100" cy="380" r="0.4" fill="white" opacity="0.45"/>
+    <circle cx="1280" cy="370" r="0.5" fill="white" opacity="0.5"/>
+    <circle cx="1700" cy="380" r="0.4" fill="white" opacity="0.4"/>
+    <circle cx="1900" cy="280" r="0.5" fill="white" opacity="0.5"/>
+  </g>
+</svg>

@@ -15,7 +15,17 @@ export const profile = {
   cta: {
     label: 'Currently',
     title: 'Open to graduate IT support roles starting Sept 2026.',
-    action: 'Send a note',
+    action: 'Transmit Message',
+  },
+  station: {
+    id: 'JW-01',
+    code: 'STN-KUL',
+    role: 'Final-year IT student',
+    studies: 'BSc IT · APU · CGPA 3.67',
+    timezone: 'Malaysia · UTC+8',
+    available: 'September 2026',
+    focus: 'Linux · Microsoft 365 · Active Directory',
+    broadcasting: ['Linux · RH124', 'Active Directory', 'Comet C/2025', 'M365 · SP'],
   },
   contact: {
     email: 'tp073616@mail.apu.edu.my',
@@ -175,11 +185,11 @@ export const projects: readonly Project[] = [
 ] as const;
 
 export const sectionMeta = {
-  about: { number: '01', label: 'About' },
-  skills: { number: '02', label: 'Skills' },
-  trail: { number: '03', label: 'Trail' },
-  projects: { number: '04', label: 'Projects' },
-  contact: { number: '05', label: 'Contact' },
+  about:    { number: '01', label: 'About',    state: 'READY', code: 'CH-A1' },
+  skills:   { number: '02', label: 'Skills',   state: 'KIT',   code: 'CH-S2' },
+  trail:    { number: '03', label: 'Trail',    state: 'LOG',   code: 'CH-T3' },
+  projects: { number: '04', label: 'Projects', state: 'BUILT', code: 'CH-P4' },
+  contact:  { number: '05', label: 'Contact',  state: 'OPEN',  code: 'CH-C5' },
 } as const;
 
 export type SectionKey = keyof typeof sectionMeta;

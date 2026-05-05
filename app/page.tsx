@@ -15,8 +15,11 @@ export default function Home() {
         <AboutSection />
         <SkillsSection />
         <TrailSection />
-        <ProjectsSection />
-        <ContactSection />
+        <div className="tower-zone">
+          <aside className="transmission-tower" aria-hidden />
+          <ProjectsSection />
+          <ContactSection />
+        </div>
       </main>
       <Footer />
       <DepthEffects />

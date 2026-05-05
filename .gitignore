@@ -46,6 +46,9 @@ yarn-error.log*
 /ftr-*.png
 /harumaki-*.png
 
+# superpowers brainstorm scratch (mockups, server state)
+/.superpowers/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeremy Woon Zhe Ming - IT Support Resume</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            text-align: justify; /* Justify all text in the body */
+        }
+        .container {
+            max-width: 1000px; /* Increased max-width for wider project items */
+            margin: 20px auto;
+            padding: 25px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 0;
+            position: relative;
+            display: grid;
+            grid-template-columns: 30% 70%;
+            gap: 25px; /* Adjusted gap */
+        }
+
+        .sidebar {
+            padding-right: 15px;
+            border-right: 1px solid #ddd;
+        }
+
+        .main-content {
+            /* Styles for the right column */
+        }
+
+        .header {
+            text-align: left;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            grid-column: 1 / -1;
+        }
+
+        .name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 5px;
+            color: #000;
+              text-align: left; /* Override justify for name */
+
+        }
+        .contact {
+            font-size: 0.8rem;
+            color: #555;
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+             text-align: left; /* Override justify for contacts*/
+        }
+        .contact > * {
+            margin-right: 12px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .contact i {
+            margin-right: 4px;
+            color: #000;
+            font-size: 0.9rem;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+
+      .section-title {
+            font-size: 0.9rem;
+            font-weight: 700; /* Make section titles bolder */
+            letter-spacing: 0.5px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            color: black;
+            text-transform: uppercase;
+             text-align: left;
+        }
+       .section-title:after{
+            content: "";
+            height: 1px;
+            background-color: #000;
+            margin-left: auto;
+            width: 100%;
+       }
+
+        .section-title i {
+            font-size: 1.1rem;
+            color: #000;
+        }
+
+        ul {
+            margin-top: 4px;
+            margin-bottom: 0;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .skills-list li::before,
+        .project-item li::before,
+        .education-item li::before,
+        .experience-item li::before,
+        .interests-list li::before,
+        .soft-skills-list li::before {
+            content: '•';
+            margin-right: 6px;
+            color: #000;
+            font-size: 1.1rem;
+            vertical-align: middle;
+        }
+
+        li {
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            position: relative;
+            padding-left: 16px;
+        }
+
+        p {
+            margin: 0 0 8px 0;
+            font-size: 0.8rem;
+            color: #444;
+        }
+
+        .education-item, .experience-item, .project-item {
+            margin-bottom: 15px;
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #000;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap:6px;
+            text-align: left; /* Override justify for item titles */
+
+        }
+       .item-title i{
+            font-size: 0.8rem;
+            color:#000;
+       }
+        .item-subtitle {
+            font-style: italic;
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 3px;
+            text-align: left;  /* Override justify for subtitles */
+        }
+
+        .item-date {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 1px;
+            font-weight: normal;
+            text-align: left; /*Ensure is aligned to left*/
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+            padding-left: 0;
+            list-style-type: none;
+        }
+        .skills-list li {
+            padding: 0px 6px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: #333;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+        }
+        .skills-list li:hover {
+            background-color: #ddd;
+            transform: none;
+            box-shadow: none;
+        }
+        .soft-skills-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 8px;
+        }
+        .soft-skills-list li{
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            padding-left: 16px;
+        }
+        .interests-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            list-style: none;
+            padding-left: 0;
+        }
+        .interests-list li{
+            padding-left: 16px;
+            font-size: 0.8rem;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Increased minmax */
+            gap: 15px; /*Increased gap*/
+        }
+        .project-item {
+            padding: 12px; /*Increased padding*/
+            border-radius: 3px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            transition: all 0.2s ease;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            margin-right: 10px;
+        }
+        .project-item:hover {
+            background-color: #f9f9f9;
+            box-shadow: none;
+        }
+        .project-item ul {
+            padding-left: 0;
+            margin-top: 6px;
+            flex-grow: 1;
+        }
+        .project-item .item-date{
+            margin-left: 0;
+            margin-top: auto;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                margin: 20px;
+                padding: 20px;
+                gap: 20px;
+            }
+            .sidebar {
+                border-right: none;
+                padding-right: 0;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 20px;
+                margin-bottom: 20px;
+            }
+           .contact{
+            flex-direction: column;
+           }
+            .item-date{
+                display: block;
+                margin-top: 5px;
+            }
+             .project-grid{
+              grid-template-columns: 1fr;
+          }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="name">JEREMY WOON ZHE MING</div>
+            <div class="contact">
+                <div><i class="fas fa-phone"></i>+60 1111926658</div>
+                <div><i class="fas fa-envelope"></i>tp073616@mail.apu.edu.my</div>
+                <div><i class="fas fa-map-marker-alt"></i>Kuala Lumpur, Malaysia</div>
+            </div>
+        </div>
+
+        <aside class="sidebar">
+            <div class="section">
+                <div class="section-title"><i class="fas fa-user"></i>PROFILE</div>
+                <p>IT student with a foundation in networking, programming, and system administration, complemented by 16 weeks of corporate IT support internship experience covering helpdesk operations, PC deployment, VPN migration, and endpoint security. Seeking a challenging IT support role to apply hands-on enterprise experience and continue growing within a dynamic organization.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-cogs"></i>TECHNICAL SKILLS</div>
+                <ul class="skills-list">
+                    <li>Active Directory</li>
+                    <li>Microsoft 365</li>
+                    <li>SharePoint</li>
+                    <li>Palo Alto VPN</li>
+                    <li>CrowdStrike EDR</li>
+                    <li>Acronis</li>
+                    <li>Linux</li>
+                    <li>Windows</li>
+                    <li>macOS</li>
+                    <li>PC Building</li>
+                    <li>TrueNAS</li>
+                    <li>Python</li>
+                    <li>Java</li>
+                    <li>C++</li>
+                    <li>MySQL</li>
+                    <li>HTML/CSS</li>
+                    <li>Swift</li>
+                    <li>R</li>
+                    <li>Data Visualization</li>
+                    <li>Hardware Troubleshooting</li>
+                    <li>Adobe Lightroom & Photoshop</li>
+                    <li>SketchUp</li>
+                    <li>Chaos V-Ray</li>
+                    <li>Chaos Vantage</li>
+
+                </ul>
+            </div>
+            <div class="section">
+               <div class="section-title"><i class="fas fa-certificate"></i>CERTIFICATIONS</div>
+                <ul>
+                    <li>Red Hat Certified Administration I (RH124)</li>
+                    <li>Red Hat Getting Started with Linux Fundamental (RH104)</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-thumbs-up"></i>SOFT SKILLS</div>
+                <ul class="soft-skills-list">
+                    <li>Problem-Solving</li>
+                    <li>Teamwork & Collaboration</li>
+                    <li>Communication</li>
+                    <li>Adaptability</li>
+                    <li>Leadership</li>
+                    <li>Time Management</li>
+                    <li>Creativity</li>
+                    <li>Patience</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-globe"></i>LANGUAGES</div>
+                <p>Mandarin</p>
+                <p>English</p>
+                <p>Bahasa Malaysia (Intermediate)</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-heart"></i>INTERESTS</div>
+                <ul class="interests-list">
+                    <li>Astrophotography</li>
+                    <li>Wildlife Photography</li>
+                    <li>Flight Simulator</li>
+                </ul>
+            </div>
+
+        </aside>
+
+        <main class="main-content">
+            <div class="section">
+                <div class="section-title"><i class="fas fa-graduation-cap"></i>EDUCATION</div>
+                <div class="education-item">
+                     <span class="item-title">Bachelor of Science in Information Technology</span>
+                    <span class="item-date">July 2023 – Present</span>
+
+                    <div class="item-subtitle">Asia Pacific University of Technology & Innovation</div>
+                    <p>CGPA: 3.67/4.0</p>
+                    <ul>
+                        <li>Networking: TCP/IP, network topologies, routers, switches.</li>
+                        <li>Programming: Python (data structures, algorithms), C (memory management, pointers), Java (OOP, Swing UI).</li>
+                        <li>Web Development: HTML, CSS, JavaScript for static and interactive web pages.</li>
+                        <li>Databases: Relational database concepts, SQL, data modeling.</li>
+                        <li>Linux: Basic system operations, command-line interface.</li>
+                        <li>R Programming: Statistical computing, data manipulation and visualization</li>
+                    </ul>
+                </div>
+              <div class="education-item">
+                   <span class="item-title">SPM & UEC</span>
+                    <span class="item-date">January 2016 – December 2022</span>
+
+                    <div class="item-subtitle">Foon Yew High School Kulai</div>
+                    <p>Accounting</p>
+
+               </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title"><i class="fas fa-project-diagram"></i>TECHNICAL PROJECTS</div>
+                <div class="project-grid">
+                   <div class="project-item">
+                        <span class="item-title">Custom PC & System Configurations</span>
+                        <ul>
+                            <li>Built custom PCs, implemented TrueNAS for data storage.</li>
+                            <li>Configured multiple operating systems (including Hackintosh).</li>
+                            <li>Experience in customizing HP workstation hardware.</li>
+                        </ul>
+                    </div>
+                    <div class="project-item">
+
+                        <span class="item-title">Campus Tour Mobile Application</span>
+                         <span class="item-date">2020-2022</span>
+
+                        <ul>
+                            <li>Developed iOS app (Swift) with Firebase backend.</li>
+                            <li>Implemented user authentication, real-time data, and media management.</li>
+                            <li>Self-taught Swift and backend development.</li>
+                        </ul>
+                    </div>
+                    <div class="project-item">
+                            <span class="item-title">Hall Booking Management System (Java)</span>
+                            <span class="item-date">July 2024 – September 2024</span>
+
+                        <ul>
+                            <li>Developed Java system with GUI (Swing) for hall reservations.</li>
+                            <li>Implemented role-based access control, user authentication, and authorization.</li>
+                            <li>Added backup/restore and system initialization checks.</li>
+                        </ul>
+                    </div>
+                    <div class="project-item">
+                            <span class="item-title">Student Management System (Python)</span>
+                            <span class="item-date">July 2023 – October 2023</span>
+
+                        <ul>
+                            <li>Developed Python system for medical supply inventory tracking.</li>
+                            <li>Implemented data structures, file handling, and user interface.</li>
+                        </ul>
+                    </div>
+
+                    <div class="project-item">
+
+                        <span class="item-title">Student Course Management System (C)</span>
+                        <span class="item-date">Feb 2024 – April 2024</span>
+                        <ul>
+                            <li>Created C program for student data, grades, and course enrollment.</li>
+                            <li>Implemented file handling, structures, and pointers.</li>
+                        </ul>
+                    </div>
+                    <div class="project-item">
+                        <span class="item-title">Linux Administration</span>
+                        <ul>
+                            <li>Applied Red Hat certification knowledge to system administration.</li>
+                            <li>Configured and maintained Linux environments.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+             <div class="section">
+                <div class="section-title"><i class="fas fa-briefcase"></i>WORK EXPERIENCE</div>
+                <div class="experience-item">
+                       <span class="item-title">IT Intern</span>
+                       <span class="item-date">May 2025 – September 2025</span>
+                    <div class="item-subtitle">MunchWorld Marketing Sdn Bhd | Klang, Selangor</div>
+                    <ul>
+                        <li>Completed a 16-week corporate IT internship within the Information Technology department, supporting end-users across HQ and branch offices.</li>
+                        <li>Resolved daily helpdesk tickets involving Microsoft Outlook, Microsoft 365, Active Directory user/group management, and hardware/network connectivity issues.</li>
+                        <li>Executed multi-site PC refresh project: imaged, configured, and deployed new desktops and laptops, migrated user data, and managed secure disposal of legacy hardware in line with asset management policy.</li>
+                        <li>Assisted in company-wide VPN migration from Fortinet to Palo Alto, including configuration, testing, and end-user support during rollout.</li>
+                        <li>Supported deployment of CrowdStrike Endpoint Detection and Response (EDR) across user devices, collaborating with the international IT team.</li>
+                        <li>Performed daily monitoring through Acronis Patch Management to ensure OS and software updates were applied across endpoints.</li>
+                        <li>Conducted physical site survey for new office, identified active network ports and power outlets, and coordinated with Canon and Ricoh for printer delivery and installation.</li>
+                        <li>Managed vendor procurement for hardware repairs, including obtaining quotations, comparing prices, and negotiating to secure lower repair costs.</li>
+                        <li>Authored handover documentation (daily routine checklist, vendor contact lists, troubleshooting guides) and personally trained the incoming intern to ensure knowledge continuity.</li>
+                    </ul>
+                </div>
+                <div class="experience-item">
+                       <span class="item-title">Freelance Photographer</span>
+                       <span class="item-date">Jan 2022 – Present</span>
+                    <div class="item-subtitle">Freelancer | Kuala Lumpur, Malaysia</div>
+                    <ul>
+                        <li>Specialized in portrait and commercial food photography.</li>
+                        <li>Managed all aspects of photography projects: concept, setup, shooting, editing.</li>
+                        <li>Collaborated with clients to deliver high-quality results and build relationships.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title"><i class="fas fa-user-check"></i>REFERENCE</div>
+                    <p>
+                        Mr. Shahab Alizadeh (Lecturer, Asia Pacific University of Technology & Innovation) - <a href="mailto:shahab.alizadeh@apu.edu.my" style="color: #666; text-decoration: none;">shahab.alizadeh@apu.edu.my</a>
+                    </p>
+             </div>
+        </main>
+    </div>
+</body>
+</html>

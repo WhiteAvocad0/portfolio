@@ -17,6 +17,19 @@
   --comet-soft: #FFE789;     /* lighter gold for halos */
   --ember: #FFB347;          /* warm horizon glow */
 
+  /* Atmosphere — Earth's stratification, top → down. The body gradient
+     interpolates through these so each section sits in its layer; section
+     dividers paint the transition bands between adjacent layers. */
+  --atm-exo:        #010410;  /* Exosphere — deepest void */
+  --atm-thermo:     #03081B;  /* Thermosphere — auroral threshold */
+  --atm-meso:       #061230;  /* Mesosphere — cold deep indigo */
+  --atm-mesopause:  #082248;  /* Mesopause — transition to stratosphere */
+  --atm-strato-top: #0B3272;  /* Stratosphere top — sky base */
+  --atm-strato-mid: #1A2A5E;  /* Mid-stratosphere — dusk indigo */
+  --atm-stratopause:#2D2456;  /* Stratopause — twilight violet */
+  --atm-tropo-up:   #4A2858;  /* Upper troposphere — sunset magenta */
+  --atm-tropo-low:  #5C2C42;  /* Lower troposphere — dusk floor */
+
   /* Semantic tokens — body sits white-on-blue */
   --bg: var(--sky);
   --bg-2: var(--sky-deep);
@@ -39,12 +52,36 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  /* No `scroll-behavior: smooth` — Lenis (init'd in DepthEffects) owns
+     the scroll easing now; CSS smoothing would double up on anchor
+     clicks and fight Lenis's interpolation. */
+  /* Prevent reveal sweeps and 3D transforms from briefly exposing the
+     viewport's edge. `clip` (vs `hidden`) doesn't establish a scroll
+     container, so position: sticky in section labels still works. */
+  overflow-x: clip;
+  /* Kill iOS Safari's blue tap-highlight; we own the active feedback. */
+  -webkit-tap-highlight-color: transparent;
+  /* Skip the 300ms double-tap-zoom delay on touch links/buttons. */
+  touch-action: manipulation;
+}
 body {
-  background:
-    url('/stars.svg') 0 0 / 1200px 800px repeat,
-    linear-gradient(180deg, var(--sky) 0%, var(--sky-deep) 50%, var(--night) 100%);
-  background-attachment: fixed;
+  /* Atmosphere gradient — exosphere at the page top, troposphere/dusk
+     floor at the bottom. Document-attached (no `background-attachment:
+     fixed`) so each section sits in the layer it represents as the user
+     scrolls down through the strata. Stars and horizon visuals continue
+     to live on the standalone .bg-stars / .bg-harumaki layers; bg-wash
+     paints the always-visible horizon bloom and aurora hints. */
+  background: linear-gradient(180deg,
+    var(--atm-exo)         0%,
+    var(--atm-thermo)      8%,
+    var(--atm-meso)       18%,
+    var(--atm-mesopause)  30%,
+    var(--atm-strato-top) 44%,
+    var(--atm-strato-mid) 58%,
+    var(--atm-stratopause) 72%,
+    var(--atm-tropo-up)   84%,
+    var(--atm-tropo-low) 100%);
   color: var(--fg);
   font-family: var(--sans);
   font-size: 16px;
@@ -54,10 +91,139 @@ body {
   perspective: 1200px;
   perspective-origin: 50% 30%;
   transform-style: preserve-3d;
+  /* Explicit stacking context so the bg layers and ::before grain are
+     guaranteed to sit behind .wrap content. */
+  position: relative;
+  z-index: 0;
+}
+
+/* Parallax background layers — JS shifts these slower than scroll so
+   the stars and atmospheric wash drift behind the content. They're
+   aria-hidden divs in layout.tsx, fixed to viewport, layered:
+     -3 stars (deepest, fastest parallax)
+     -2 wash  (atmospheric, slower parallax)
+     -1 harumaki horizon (mountain ridge + constellations, anchored) */
+.bg-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+  background:
+    url('/stars.svg') 0 0 / 1200px 800px repeat,
+    url('/stars.svg') 420px 260px / 880px 580px repeat;
+  /* Layered DoF — deepest layer takes the most blur so the stars read
+     as "out of focus far away", giving the eye a real focus plane. */
+  filter: blur(0.8px);
+  will-change: background-position;
+}
+.bg-wash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  /* The two upper radials (blue at 14%/white at 88%) were removed because
+     their non-red RGB channels (140,190,255 and 255,255,255) composited
+     over the body's near-black atm-exo via NORMAL alpha blending, which
+     reduces the destination's intensity in the channels where the source
+     is darker. The result was a perceptual "dark block" at the top of
+     the hero where the radials were strongest. The bottom horizon glow
+     and yellow-pink dusk band are kept since they sit well below the
+     visible hero area. */
+  background:
+    radial-gradient(150% 65% at 50% 100%, rgba(255,128,247,0.42) 0%, rgba(184,93,210,0.18) 35%, rgba(255,128,247,0) 70%),
+    radial-gradient(70% 35% at 75% 95%, rgba(255,217,69,0.18) 0%, rgba(255,217,69,0) 100%);
+  /* Mid-layer blur — softer focus than the stars, but still subtly
+     unfocused so the wash feels like a hazy distance band. */
+  filter: blur(0.4px);
+  will-change: transform;
+}
+/* Cinematic vignette — fixed radial mask sitting between the bg layers
+   and the content stack. Darkens viewport edges + brightens centre, so
+   the page reads as if viewed through a camera lens rather than a flat
+   browser window. Pointer-events:none, aria-hidden so it never affects
+   interaction. z-index: -1 places it on the .bg-harumaki layer; DOM
+   order in layout.tsx puts it AFTER harumaki, so it draws on top of
+   the bg layers but stays below content (.wrap is z-index: 1). */
+.bg-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(140% 100% at 50% 50%,
+    transparent             30%,
+    rgba(2, 4, 12, 0.30)    75%,
+    rgba(2, 4, 12, 0.55)   100%);
+}
+/* Harumaki Gohan-inspired horizon — mountain ridge silhouette with
+   constellations, named stars, shooting stars, and cloud wisps. The
+   SVG sizes to viewport width with proportional height (1:4 aspect)
+   and anchors to the viewport bottom so the ridge always sits at the
+   horizon line regardless of scroll. */
+.bg-harumaki {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: url('/sky-harumaki.svg') 50% 100% / 100% auto no-repeat;
+  will-change: transform;
+}
+
+/* Distant building cluster — small dark urban silhouettes resting on the
+   horizon, with a few magenta warning lights atop the taller ones. Sits
+   between bg-wash and bg-harumaki so the harumaki ridge slightly occludes
+   the building bases. Anchored to viewport bottom + a small offset so the
+   buildings appear to stand on/behind the ridge line. */
+.bg-buildings {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 220' preserveAspectRatio='xMidYEnd meet'><g fill='%23030A1C'><rect x='44' y='150' width='28' height='70'/><rect x='75' y='130' width='34' height='90'/><rect x='112' y='110' width='30' height='110'/><rect x='145' y='86' width='38' height='134'/><rect x='186' y='66' width='32' height='154'/><rect x='221' y='92' width='40' height='128'/><rect x='264' y='112' width='32' height='108'/><rect x='299' y='128' width='30' height='92'/><rect x='332' y='100' width='36' height='120'/><rect x='371' y='124' width='30' height='96'/><rect x='404' y='148' width='34' height='72'/></g><g stroke='%23030A1C' stroke-width='1.5'><line x1='201' y1='66' x2='201' y2='44'/><line x1='160' y1='86' x2='160' y2='68'/><line x1='349' y1='100' x2='349' y2='80'/></g><g><circle cx='201' cy='42' r='2.4' fill='%23FF80F7' opacity='0.92'/><circle cx='160' cy='66' r='2' fill='%23FF80F7' opacity='0.85'/><circle cx='240' cy='92' r='1.8' fill='%23FF80F7' opacity='0.78'/><circle cx='349' cy='78' r='2' fill='%23FF80F7' opacity='0.85'/></g></svg>");
+  background-size: clamp(380px, 46vw, 760px) auto;
+  background-repeat: no-repeat;
+  background-position: 50% calc(100% - 28px);
+  will-change: transform;
+}
+@media (max-width: 720px) {
+  /* Smaller cluster on mobile so it doesn't dominate the narrow viewport. */
+  .bg-buildings { background-size: 70vw auto; background-position: 50% calc(100% - 18px); }
+}
+
+/* Native CSS scroll-driven animations — when the browser supports it
+   (Chromium 115+, Safari 18+), drive the bg-layer parallax directly
+   from the document scroll timeline. Zero JS, GPU-native, no rAF cost.
+   DepthEffects detects support and skips the JS equivalent for these
+   layers when CSS handles them. Firefox + older browsers fall through
+   to the JS rAF parallax (no rules apply, no animation runs). */
+@supports (animation-timeline: scroll()) {
+  @keyframes bg-stars-parallax {
+    from { background-position: 0 0, 420px 260px; }
+    to   { background-position: 0 -2400px, 420px -2140px; }
+  }
+  @keyframes bg-wash-parallax {
+    from { transform: translate3d(0,  60px, 0); }
+    to   { transform: translate3d(0, -60px, 0); }
+  }
+  @keyframes bg-harumaki-parallax {
+    from { transform: translate3d(0,  22px, 0); }
+    to   { transform: translate3d(0, -22px, 0); }
+  }
+  .bg-stars {
+    animation: bg-stars-parallax linear;
+    animation-timeline: scroll(root block);
+  }
+  .bg-wash {
+    animation: bg-wash-parallax linear;
+    animation-timeline: scroll(root block);
+  }
+  .bg-harumaki {
+    animation: bg-harumaki-parallax linear;
+    animation-timeline: scroll(root block);
+  }
 }
 
 :focus-visible {
-  outline: 2px solid var(--bloom);
+  outline: 2px solid var(--comet);
   outline-offset: 4px;
 }
 
@@ -74,18 +240,8 @@ body::before {
   background-size: 240px 240px;
 }
 
-/* Atmospheric wash — pink horizon bloom, gold streak highlight, soft sun-spot */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(150% 65% at 50% 100%, rgba(255,128,247,0.42) 0%, rgba(184,93,210,0.18) 35%, rgba(255,128,247,0) 70%),
-    radial-gradient(70% 35% at 75% 95%, rgba(255,217,69,0.18) 0%, rgba(255,217,69,0) 100%),
-    radial-gradient(80% 60% at 14% 8%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0) 100%);
-}
+/* Atmospheric wash moved to .bg-wash layer so it can parallax. The
+   body::after rule is intentionally removed. */
 
 .wrap {
   max-width: var(--max);
@@ -120,14 +276,16 @@ body::after {
 /* ---------- HERO: deeply layered 3D scene ---------- */
 .hero {
   padding: clamp(60px, 9vw, 140px) 0 clamp(40px, 6vw, 80px);
-  border-bottom: 1px solid var(--rule);
+  /* No border at the bottom — the hero/about transition is handled by
+     section#about::before's aurora-band gradient. A 1px hairline here
+     reads as a hard horizontal seam against the smooth atmosphere. */
   transform-style: preserve-3d;
 }
 .hero h1 {
   font-family: var(--serif);
   font-weight: 400;
   font-size: clamp(56px, 10vw, 168px);
-  line-height: 0.92;
+  line-height: 0.96;
   letter-spacing: -0.025em;
   margin: 0 0 24px;
   color: var(--fg);
@@ -153,9 +311,11 @@ body::after {
   display: inline-block;
   background: var(--bloom);
   color: var(--night);
-  padding: 0 0.12em;
+  padding: 0 0.14em;
+  transform: skew(-3deg);
   box-shadow:
     0 1px 0 rgba(255,255,255,0.6) inset,
+    0 -1px 0 rgba(255, 96, 230, 0.45) inset,
     0 0 0 1px rgba(255, 168, 244, 0.5),
     0 4px 18px rgba(255, 128, 247, 0.7),
     0 0 36px rgba(255, 128, 247, 0.55),
@@ -179,7 +339,7 @@ body::after {
 
 .hero .grid {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr clamp(340px, 26vw, 440px);
   gap: clamp(32px, 5vw, 80px);
   align-items: end;
 }
@@ -199,51 +359,69 @@ body::after {
 }
 .hero .eyebrow b { color: var(--fg); font-weight: 400; }
 
-/* hero side card — matte liquid glass over the night sky */
+/* hero side card — Apple-style Liquid Glass over the night sky.
+   Layered material: specular top edge, soft pink absorbed tint, deep
+   backdrop refraction (blur+saturate+brightness), rim lights on all
+   four edges, ambient inner glow, lifted outer shadow stack. */
 .hero .id-card {
   position: relative;
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 20px;
   background:
-    radial-gradient(140% 160% at 0% 0%, rgba(255,128,247,0.18) 0%, rgba(255,128,247,0) 55%),
-    rgba(11, 35, 78, 0.48);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  padding: 24px 22px;
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.04) 28%,
+      rgba(255, 255, 255, 0) 60%),
+    radial-gradient(140% 160% at 0% 0%, rgba(255, 128, 247, 0.18) 0%, rgba(255, 128, 247, 0) 55%),
+    rgba(11, 35, 78, 0.32);
+  backdrop-filter: blur(28px) saturate(180%) brightness(1.08);
+  -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.08);
+  padding: clamp(28px, 1.9vw, 36px) clamp(26px, 1.7vw, 32px);
   font-family: var(--round);
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.78);
+  color: rgba(255, 255, 255, 0.82);
   will-change: transform, box-shadow;
-  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+  transition: box-shadow 0.5s ease, border-color 0.5s ease, transform 0.5s ease;
   transform-style: preserve-3d;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.22),
-    inset 0 0 24px rgba(255,128,247,0.05),
-    0 4px 8px rgba(0,0,0,0.18),
-    0 12px 32px rgba(0,0,0,0.32),
-    0 32px 80px -16px rgba(11,35,78,0.55);
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 1px 0 0 rgba(255, 255, 255, 0.06),
+    inset -1px 0 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 36px rgba(255, 128, 247, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 8px 20px rgba(0, 0, 0, 0.22),
+    0 28px 56px rgba(0, 0, 0, 0.30),
+    0 48px 96px -24px rgba(11, 35, 78, 0.50);
 }
-/* matte grain inside the glass — kills any too-glossy feel */
+/* matte grain inside the glass — keeps the surface from going too slick */
 .hero .id-card::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   border-radius: inherit;
-  opacity: 0.12;
+  opacity: 0.08;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 240px 240px;
 }
-.hero .id-card:hover {
-  border-color: rgba(255,255,255,0.28);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.28),
-    inset 0 0 32px rgba(255,128,247,0.08),
-    0 8px 16px rgba(0,0,0,0.22),
-    0 24px 48px rgba(0,0,0,0.36),
-    0 64px 120px -20px rgba(255,128,247,0.32);
+@media (hover: hover) {
+  .hero .id-card:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 1px 0 0 rgba(255, 255, 255, 0.08),
+      inset -1px 0 0 rgba(255, 255, 255, 0.08),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 0 44px rgba(255, 128, 247, 0.10),
+      0 2px 4px rgba(0, 0, 0, 0.22),
+      0 14px 32px rgba(0, 0, 0, 0.28),
+      0 40px 80px rgba(0, 0, 0, 0.36),
+      0 80px 140px -24px rgba(255, 128, 247, 0.32);
+  }
 }
 /* keep dl/avatar above the matte grain layer */
 .hero .id-card .head,
@@ -251,13 +429,72 @@ body::after {
 .hero .id-card .avatar { position: relative; z-index: 1; }
 .hero .id-card .head {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
+  gap: 8px;
   border-bottom: 1px solid rgba(255,255,255,0.18);
   padding-bottom: 10px;
   margin-bottom: 14px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
 }
-.hero .id-card .head b { color: var(--fg); font-weight: 500; }
+.hero .id-card .head .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: color(display-p3 1 0.18 0.27);
+  box-shadow:
+    0 0 0 3px var(--sky-deep),
+    0 0 6px 1px rgba(255, 49, 70, 0.42);
+  animation: signal-pulse 1.2s linear infinite;
+  flex-shrink: 0;
+}
+.hero .id-card .head .t { color: var(--fg); }
+.hero .id-card .head .rt {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  color: var(--bloom-soft);
+}
+/* Hero "now broadcasting" tag rack — sits below the dl, mono chips */
+.hero .id-card .bcast {
+  position: relative;
+  z-index: 1;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.hero .id-card .bcast .lab {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  color: var(--muted-2);
+  margin-bottom: 8px;
+}
+.hero .id-card .bcast .bands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 5px;
+}
+.hero .id-card .bcast .bands span {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  padding: 3px 7px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  color: var(--fg-2);
+  background: rgba(255,255,255,0.04);
+}
+.hero .id-card .bcast .bands span[data-i="live"] {
+  color: var(--bloom-soft);
+  border-color: rgba(255, 168, 244, 0.34);
+  background: rgba(255, 128, 247, 0.10);
+}
 .hero .id-card dl {
   margin: 0;
   display: grid;
@@ -283,15 +520,15 @@ body::after {
   font-size: 13px;
 }
 
-/* id-card avatar — circular placeholder */
+/* id-card avatar — circular placeholder, scaled to balance the larger card */
 .hero .id-card .avatar {
-  width: 72px;
-  height: 72px;
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.24);
   background: rgba(255,255,255,0.06);
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -308,29 +545,192 @@ section.s {
   padding: clamp(60px, 8vw, 120px) 0;
   position: relative;
   background: transparent;
+  /* preserve-3d kept so .wrap's translateZ propagates into body's
+     perspective; will-change moved to .wrap, which is now the
+     transformed element (the section box itself stays at layout z=0
+     to avoid hairline gaps at section boundaries under perspective). */
   transform-style: preserve-3d;
-  will-change: transform;
 }
-section.s::before {
+section.s > .wrap,
+.outro > .wrap { will-change: transform; }
+/* Section dividers — Harumaki Gohan stratified horizon bands tuned to
+   Earth's atmospheric layers. Each section's TOP band paints the
+   transition coming DOWN from the layer above; each section's BOTTOM
+   band paints the transition going DOWN into the layer below. The
+   adjacent bands at every section boundary share their boundary colour
+   so the strata read as one continuous atmosphere when scrolled.
+
+   Top → down stratification on this page:
+     Hero      = exosphere / thermosphere (no band — pure space)
+     About     = mesosphere
+     Skills    = upper stratosphere
+     Trail     = mid-stratosphere (ozone above, stratopause sunset below)
+     Projects  = upper troposphere (sunset above, noctilucent below)
+     Contact   = lower troposphere / dusk floor */
+section.s::before,
+section.s::after,
+.outro::before {
   content: '';
   position: absolute;
-  left: 0; right: 0; top: 0;
-  height: 130px;
-  background: linear-gradient(180deg,
-    rgba(255,128,247,0.15) 0%,
-    rgba(255,128,247,0.06) 35%,
-    rgba(255,128,247,0) 100%);
+  left: 0; right: 0;
   pointer-events: none;
   z-index: 2;
 }
-section.s::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 1px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent);
-  pointer-events: none;
+section.s::before { top: 0; height: 110px; }
+section.s::after  { bottom: 0; height: 100px; }
+.outro::before    { top: 0; height: 110px; }
+
+/* Trail → Projects divider sits BEHIND the tower so the silhouette
+   reads as a physical structure standing in front of the atmospheric
+   sunset band, rather than being painted over by the divider. z:-3 is
+   below the tower's z:-2 but still above bg-stars (which is at z:-3
+   too but earlier in DOM, so the divider paints over it). */
+section#trail::after,
+section#projects::before { z-index: -3; }
+
+/* Earth-curve atmospheric divider — a soft luminous arc layered on top of
+   each section's color transition band. Represents the curvature of the
+   earth's limb at the altitude where one atmospheric layer meets the next.
+   Drawn as an SVG with two stroke layers: a wide faint halo + a sharp
+   centre line, both with horizontal alpha-fade so the arc tapers to
+   nothing at the left/right edges. The arc deepens slightly as the
+   divider crosses viewport centre, driven by an animated CSS variable
+   --curve-h via animation-timeline: view(). On engines without
+   scroll-driven animation support (Firefox), the static initial value
+   is used — graceful fallback. */
+@property --curve-h {
+  syntax: '<length>';
+  initial-value: 22px;
+  inherits: true;
 }
+:root {
+  /* Hairline-thin centre stroke (0.7px, 0.65 peak alpha) gives a modern
+     look; deeper Bézier (Q720,2 against y=38 endpoints — ~45% of viewBox
+     depth) makes the resting curve more pronounced; broader animation
+     range (18 → 56 → 18px) makes the breathing visibly perceptible on
+     scroll (peak rise ~8px → ~25px → ~8px). */
+  --horizon-arc: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 40' preserveAspectRatio='none'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='white' stop-opacity='0'/><stop offset='0.18' stop-color='white' stop-opacity='0.30'/><stop offset='0.5' stop-color='white' stop-opacity='0.65'/><stop offset='0.82' stop-color='white' stop-opacity='0.30'/><stop offset='1' stop-color='white' stop-opacity='0'/></linearGradient><linearGradient id='h' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='white' stop-opacity='0'/><stop offset='0.5' stop-color='white' stop-opacity='0.20'/><stop offset='1' stop-color='white' stop-opacity='0'/></linearGradient></defs><path d='M0,38 Q720,2 1440,38' stroke='url(%23h)' stroke-width='10' fill='none'/><path d='M0,38 Q720,2 1440,38' stroke='url(%23g)' stroke-width='0.7' fill='none'/></svg>");
+}
+@keyframes horizon-roll {
+  /* Per-keyframe easing: ease-in (slow start, fast finish) on the rise so
+     the curve sits close to its resting depth as the section enters
+     viewport, then accelerates into peak at centre. Mirrored ease-out on
+     the fall — fast drop from peak, then settles. Reads as a breath. */
+  from { --curve-h: 18px; animation-timing-function: cubic-bezier(0.65, 0, 0.85, 0.30); }
+  50%  { --curve-h: 56px; animation-timing-function: cubic-bezier(0.15, 0.70, 0.35, 1); }
+  to   { --curve-h: 18px; }
+}
+section#about, section#skills, section#trail, section#projects, .outro {
+  animation: horizon-roll auto linear;
+  animation-timeline: view();
+}
+
+/* CSS scroll-driven section depth — replaces the JS rAF loop's per-frame
+   getBoundingClientRect + style writes on all 6 sections. Each .wrap
+   interpolates --depth-z (translateZ) and --depth-o (opacity) as the
+   section traverses the viewport. JS only runs this on browsers without
+   scroll-driven support (see depth-effects.tsx). Massive perf win on
+   modern desktop and mobile. */
+@property --depth-z { syntax: '<length>'; initial-value: 0px; inherits: false; }
+@property --depth-o { syntax: '<number>'; initial-value: 1; inherits: false; }
+@keyframes section-depth-roll {
+  0%, 100% { --depth-z: -50px; --depth-o: 0.82; }
+  50%     { --depth-z: 0px;   --depth-o: 1; }
+}
+@supports (animation-timeline: view()) {
+  section.s > .wrap, .outro > .wrap {
+    transform: translate3d(0, 0, var(--depth-z));
+    opacity: var(--depth-o);
+    animation: section-depth-roll auto linear;
+    animation-timeline: view();
+  }
+}
+
+/* About — top: thermosphere → mesosphere boundary (faint aurora wisps
+   fading down into deep indigo). Arc layered on top of the color band. */
+section#about::before {
+  background:
+    var(--horizon-arc) 50% 0% / 100% var(--curve-h) no-repeat,
+    linear-gradient(180deg,
+      rgba( 96, 220, 180, 0.07)  0%,   /* aurora green */
+      rgba(180, 130, 255, 0.10) 30%,   /* aurora violet */
+      rgba( 60,  90, 180, 0.06) 60%,
+      transparent              100%);
+}
+/* About → Skills: mesosphere → stratosphere (indigo lifting toward dusk blue). */
+section#about::after {
+  background: linear-gradient(180deg,
+    transparent                 0%,
+    rgba( 40,  70, 140, 0.08)  35%,
+    rgba( 80, 130, 200, 0.10)  68%,
+    rgba(140, 180, 240, 0.10) 100%);
+}
+section#skills::before {
+  background:
+    var(--horizon-arc) 50% 0% / 100% var(--curve-h) no-repeat,
+    linear-gradient(180deg,
+      rgba(140, 180, 240, 0.10)   0%,
+      rgba( 80, 130, 200, 0.10)  32%,
+      rgba( 40,  70, 140, 0.08)  65%,
+      transparent              100%);
+}
+/* Skills → Trail: stratospheric ozone shimmer (cool cyan, very pale). */
+section#skills::after {
+  background: linear-gradient(180deg,
+    transparent                 0%,
+    rgba(120, 200, 240, 0.08)  30%,
+    rgba(180, 230, 255, 0.12)  65%,
+    rgba(220, 240, 255, 0.16) 100%);
+}
+section#trail::before {
+  background:
+    var(--horizon-arc) 50% 0% / 100% var(--curve-h) no-repeat,
+    linear-gradient(180deg,
+      rgba(220, 240, 255, 0.16)   0%,
+      rgba(180, 230, 255, 0.12)  35%,
+      rgba(120, 200, 240, 0.08)  68%,
+      transparent              100%);
+}
+/* Trail → Projects: STRATOPAUSE SUNSET — the dramatic atmospheric beat.
+   Hot magenta sits AT the section boundary so the two bands read as one
+   continuous sunset bell, not two adjacent peaks with a saturation
+   valley between them. Each half fades outward symmetrically through
+   pink → peach → gold → transparent into its section's interior — the
+   "compressed dusk" Harumaki paints, but as a single arc. */
+section#trail::after {
+  background: linear-gradient(180deg,
+    transparent                 0%,
+    rgba(255, 217,  69, 0.06)  20%,   /* faint gold lift */
+    rgba(255, 195, 120, 0.12)  40%,   /* gold-peach */
+    rgba(255, 165, 130, 0.20)  60%,   /* peach */
+    rgba(255, 145, 180, 0.25)  80%,   /* magenta-pink */
+    rgba(255, 130, 200, 0.28) 100%);  /* hot magenta — peak at boundary */
+}
+section#projects::before {
+  background:
+    var(--horizon-arc) 50% 0% / 100% var(--curve-h) no-repeat,
+    linear-gradient(180deg,
+      rgba(255, 130, 200, 0.28)   0%,   /* hot magenta — peak at boundary */
+      rgba(255, 145, 180, 0.25)  20%,
+      rgba(255, 165, 130, 0.20)  40%,
+      rgba(255, 195, 120, 0.12)  60%,
+      rgba(255, 217,  69, 0.06)  80%,
+      transparent              100%);
+}
+/* Projects → Contact: noctilucent / cirrus cloud band — pale blue
+   wisps brushed with soft pink, sitting at the troposphere top. */
+section#projects::after {
+  background: linear-gradient(180deg,
+    transparent                 0%,
+    rgba(180, 200, 255, 0.10)  30%,
+    rgba(255, 168, 244, 0.14)  60%,
+    rgba(255, 200, 180, 0.16) 100%);
+}
+/* Divider between Projects and Contact removed — at the dusk floor /
+   ground level, an additional horizon line reads as superfluous since
+   the harumaki ridge already provides the visual closure. */
+section#projects::after,
+.outro::before { display: none; }
 .s .head,
 .outro .head {
   display: grid;
@@ -364,6 +764,36 @@ section.s::after {
   color: var(--fg);
   font-weight: 300;
   letter-spacing: -0.02em;
+  display: inline-block;
+  /* Entry: settles in slightly behind the heading so the number "lands". */
+  opacity: 0.5;
+  transform: scale(0.92);
+  transform-origin: 0 50%;
+  transition:
+    opacity 0.7s cubic-bezier(.22,1,.36,1) 0.18s,
+    transform 0.85s cubic-bezier(.22,1,.36,1) 0.18s;
+}
+.s .head.reveal.in .label .num,
+.outro .head.reveal.in .label .num {
+  opacity: 1;
+  transform: scale(1);
+}
+.s .head .label .num small,
+.outro .head .label .num small {
+  font-family: var(--mono);
+  font-size: 0.30em;
+  font-weight: 300;
+  color: var(--muted-2);
+  letter-spacing: 0;
+  margin-left: 0.32em;
+  vertical-align: 0.45em;
+  /* Divisor lands a beat after the main numeral. */
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(.22,1,.36,1) 0.55s;
+}
+.s .head.reveal.in .label .num small,
+.outro .head.reveal.in .label .num small {
+  opacity: 1;
 }
 .s h2 {
   font-family: var(--serif);
@@ -384,12 +814,20 @@ section.s::after {
 }
 
 /* ---------- About ---------- */
+/* About-only override: bump the left column to 380px so the "At a glance"
+   card has real heft. The section .head row matches so the H2 stays aligned
+   with the body column underneath. Body prose is capped at 60ch (~540px),
+   so the right column still has room to breathe at common viewports. */
+section#about .head { grid-template-columns: 380px 1fr; }
 .about-grid {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 380px 1fr;
   gap: clamp(24px, 4vw, 64px);
 }
-@media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  section#about .head { grid-template-columns: 1fr; }
+  .about-grid { grid-template-columns: 1fr; }
+}
 .about-body p {
   font-family: var(--serif);
   font-size: clamp(20px, 2.2vw, 28px);
@@ -456,24 +894,73 @@ section.s::after {
   text-transform: uppercase;
   color: var(--muted);
 }
+/* Kit meter — replaces the prior 1px gradient bar with a 10-segment LED
+   readout. The `.bar` element keeps its `--w` style for backward compat
+   (and a hidden semantic width signal); each child span is a segment, lit
+   when it carries [data-on]. .in-view triggers a staggered fade-in so the
+   capability "loads" rather than appearing instantly. */
 .skill-list .bar {
-  height: 1px;
-  background: var(--rule);
+  display: grid;
+  grid-template-columns: repeat(10, 1fr) 36px;
+  gap: 4px;
+  align-items: center;
+  background: transparent;
+  height: auto;
   position: relative;
 }
-.skill-list .bar::after {
-  content: '';
-  position: absolute; left: 0; top: -1px;
-  height: 3px;
-  background: linear-gradient(90deg, var(--sky-2) 0%, var(--bloom-soft) 55%, var(--bloom) 100%);
-  width: 0;
-  transition: width 1.4s cubic-bezier(.22,1,.36,1);
-  box-shadow:
-    0 0 8px rgba(255, 168, 244, 0.7),
-    0 0 18px rgba(255, 128, 247, 0.55),
-    0 0 36px rgba(255, 128, 247, 0.30);
+.skill-list .bar > span {
+  height: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 1px;
+  transition:
+    background 0.5s cubic-bezier(.22,1,.36,1),
+    border-color 0.5s cubic-bezier(.22,1,.36,1),
+    box-shadow 0.5s ease;
 }
-.skill-list.in-view .bar::after { width: var(--w, 60%); }
+.skill-list.in-view .bar > span[data-on] {
+  background: var(--bloom-soft);
+  border-color: rgba(255, 168, 244, 0.45);
+  box-shadow:
+    0 0 4px rgba(255, 168, 244, 0.55),
+    0 0 10px rgba(255, 128, 247, 0.30);
+}
+.skill-list.in-view .bar > span[data-on]:nth-child(1)  { transition-delay: 0.05s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(2)  { transition-delay: 0.10s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(3)  { transition-delay: 0.15s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(4)  { transition-delay: 0.20s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(5)  { transition-delay: 0.25s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(6)  { transition-delay: 0.30s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(7)  { transition-delay: 0.35s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(8)  { transition-delay: 0.40s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(9)  { transition-delay: 0.45s; }
+.skill-list.in-view .bar > span[data-on]:nth-child(10) { transition-delay: 0.50s; }
+.skill-list .bar > em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+  text-align: right;
+  padding-left: 6px;
+}
+.skill-list.in-view .bar > em { color: var(--fg-2); }
+/* Group title + KIT callsign tag */
+.skill-group .gtitle {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.skill-group .gtitle em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--muted-2);
+  font-weight: 400;
+  margin-left: auto;
+}
 
 /* ---------- Trail (Education + Experience + Certs) ---------- */
 .trail-grid {
@@ -491,56 +978,67 @@ section.s::after {
    tapered antenna mast, with a cap and signal pulse at the very top, then
    continues down through the timeline as the lattice tower's central beam.
    Extension stays clear of the section heading row above. */
+/* Trail spine = the SAME single line as the tower's central spine.
+   Above the cross-arm, a real transmission tower has a single antenna
+   mast — only below the cross-arm do the body legs splay out into a
+   lattice. So the tip is rendered as a solid dark-navy bar matching the
+   tower's central spine line: same #030814 colour, same 0.6 alpha
+   (matching .transmission-tower's wrapper opacity), same ~7px rendered
+   width as the tower's stroke-width:3 central spine in its 240-unit
+   viewBox at 518px width. Pill-shaped via border-radius for the
+   stroke-linecap:round look used in the SVG. */
 .trail::before {
   content: '';
   position: absolute;
-  left: 92px; top: -34px; bottom: 8px;
-  width: 1px;
-  background: linear-gradient(180deg,
-    transparent 0,
-    transparent 6px,
-    rgba(255, 255, 255, 0.15) 22px,
-    var(--comet) 38px,
-    var(--bloom) 46px,
-    var(--bloom-soft) 70px,
-    rgba(255, 128, 247, 0.40) 180px,
-    rgba(255, 255, 255, 0.22) 55%,
-    rgba(255, 255, 255, 0.10) 100%);
-  box-shadow:
-    0 0 6px rgba(255, 217, 69, 0.5),
-    0 0 16px rgba(255, 128, 247, 0.45),
-    0 0 32px rgba(255, 128, 247, 0.20);
+  /* Spine starts at -34 (just below the antenna cap which sits at -42 →
+     -34 with its 8px height, so the spine begins exactly where the cap
+     ends) and extends down to .trail.bottom - 8. The blinking antenna
+     cap is the topmost point — nothing extends above it (no upward
+     box-shadow halo). The cap supplies its own prominent glow. */
+  left: 89px; top: -34px; bottom: 8px;
+  width: 7px;
+  background: rgba(3, 8, 20, 0.6);
+  border-radius: 3.5px;
 }
-/* Antenna tip cap — tiny luminous dot at the very top of the mast */
+/* Antenna tip cap — small white blinking light at the very top of the
+   tip, sized to match the red signal beacon (7x7 + halo capped at 22px)
+   so the two lights read as a peer pair rather than one dominating the
+   other. Cap bottom lands at y=-34 (exactly where the spine begins) so
+   the tip ends here — nothing extends above this light. */
 .trail::after {
   content: '';
   position: absolute;
-  left: 89.5px;
-  top: -42px;
-  width: 5px;
-  height: 5px;
+  left: 89px;
+  top: -41px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--bloom-soft);
+  background: rgba(255, 255, 255, 1);
   box-shadow:
-    0 0 8px rgba(255, 168, 244, 0.95),
-    0 0 22px rgba(255, 128, 247, 0.70),
-    0 0 44px rgba(255, 128, 247, 0.40),
-    0 0 80px rgba(255, 128, 247, 0.18);
+    0 0 6px rgba(255, 255, 255, 0.85),
+    0 0 14px rgba(255, 255, 255, 0.45),
+    0 0 22px rgba(255, 255, 255, 0.20);
   opacity: 1;
 }
 @media (max-width: 600px) {
-  .trail::before { left: 16px; }
-  .trail::after { left: 14.5px; }
+  .trail::before { left: 13px; width: 7px; }
+  .trail::after { left: 13px; }
 }
 .ev {
   position: relative;
   padding-bottom: clamp(28px, 4vw, 48px);
 }
 .ev:last-child { padding-bottom: 0; }
+/* Dot is 11px wide; for its visual center to sit on the spine's pixel
+   center (x = 92.5 desktop / 16.5 mobile), the left edge must be at
+   spine-center − 5.5 = 87 / 11 → left: -13 relative to .ev (whose left
+   edge is at trail's content edge: 100 desktop / 24 mobile). Single
+   value works on both viewports — the previous mobile override of -23
+   put the dot 10px LEFT of the spine. */
 .ev::before {
   content: '';
   position: absolute;
-  left: -14px; top: 12px;
+  left: -13px; top: 12px;
   width: 11px; height: 11px;
   border: 1px solid rgba(255,255,255,0.6);
   background: var(--night);
@@ -549,9 +1047,9 @@ section.s::after {
   box-shadow: 0 2px 4px rgba(0,0,0,0.24);
   z-index: 2;
 }
-@media (max-width: 600px) { .ev::before { left: -23px; } }
 /* Cross-arm truss — extends leftward from each non-live dot toward the
-   year column, suggesting the antenna tower's lattice structure. */
+   year column, suggesting the antenna tower's lattice structure. Width
+   varies subtly by position so the trail doesn't read as a rigid grid. */
 .ev::after {
   content: '';
   position: absolute;
@@ -564,105 +1062,206 @@ section.s::after {
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.20);
   pointer-events: none;
   z-index: 1;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
 }
+.ev:nth-child(odd)::after { width: 52px; left: -68px; }
+.ev:nth-child(3n)::after { width: 38px; left: -54px; }
 @media (max-width: 600px) { .ev::after { display: none; } }
+
+/* Hover: light up the cross-arm and grow the dot. Live event opts out so
+   the signal-tower pulse keeps full ownership of the beacon. Gated on
+   real pointer devices so touch users don't get sticky-hover. */
+.ev h3 { transition: color 0.4s ease; }
+@media (hover: hover) {
+  .ev:not(.now):hover::before {
+    transform: scale(1.4);
+    border-color: var(--bloom-soft);
+    box-shadow:
+      0 2px 4px rgba(0,0,0,0.24),
+      0 0 8px rgba(255, 168, 244, 0.7),
+      0 0 18px rgba(255, 128, 247, 0.40);
+  }
+  .ev:not(.now):hover::after {
+    background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 168, 244, 0.22) 25%,
+      rgba(255, 128, 247, 0.85) 100%);
+    box-shadow: 0 0 10px rgba(255, 128, 247, 0.45);
+  }
+  .ev:not(.now):hover h3 { color: var(--bloom-soft); }
+}
 .ev.now::before {
   background: color(display-p3 1 0.18 0.27);
   border-color: color(display-p3 1 0.18 0.27);
   width: 7px;
   height: 7px;
-  left: -12px;
+  /* 7px dot centered on spine: left = spine-center − 3.5 → -11 relative. */
+  left: -11px;
   top: 13px;
   transform: translateZ(20px) scale(1.05);
   animation: signal-pulse 1.2s linear infinite;
 }
-/* HDR-feel additive bloom layer — sits over the dot, plus-lighter blends
-   its glow with the body sky so the peak appears to overshoot white on
-   capable displays. Replaces the cross-arm on the live event. */
+/* Cine-lens cross flare — anamorphic horizontal streak (long, thin)
+   crossed by a short vertical, with a circular bloom at the optical
+   centre. The horizontal extends ~3.4x further than the vertical, which
+   is the classic anamorphic 2.39:1 lens look (real anamorphic streaks
+   span the screen; this one stops short of the right column to stay
+   inside the trail layout).
+
+   Two prior bugs informed this design and must remain fixed:
+   (1) `transparent` in a linear-gradient interpolates THROUGH BLACK on
+       the way to white inner stops, leaving a faint rectangular fringe
+       at the element edges. Fix kept: use `rgba(.., 0)` for fade-out
+       stops instead of `transparent`.
+   (2) `.ev::after` declares a 6px white box-shadow that cascades to the
+       `.ev.now::after` rule unless explicitly cleared. With the wider
+       540×100 box that shadow would read as a glowing rectangle around
+       the flare. Fix kept: `box-shadow: none` below.
+   The streaks taper fully to zero alpha well before the box edges, so
+   widening the box does NOT re-introduce edge artifacts. */
 .ev.now::after {
   content: '';
   position: absolute;
-  left: -12px; top: 13px;
-  width: 7px; height: 7px;
-  border-radius: 50%;
+  /* Keep the optical centre fixed on the dot's centre (-7.5, 16.5):
+     left = -7.5 − width/2, top = 16.5 − height/2. */
+  left: -277.5px; top: -33.5px;
+  width: 540px; height: 100px;
+  border-radius: 0;
   pointer-events: none;
-  background: transparent;
+  background:
+    /* Horizontal streak — 1.5px thin, visible from ~4% to ~96% of the
+       540px box (≈497px of streak), peaking white at centre. The long
+       ramp on each side gives the anamorphic "tail" feel. */
+    linear-gradient(90deg,
+      rgba(255, 255, 255, 0)     0%,
+      rgba(255, 255, 255, 0)     4%,
+      rgba(255, 255, 255, 0.05) 11%,
+      rgba(255, 255, 255, 0.18) 22%,
+      rgba(255, 255, 255, 0.42) 34%,
+      rgba(255, 255, 255, 0.86) 44%,
+      rgba(255, 255, 255, 1)    50%,
+      rgba(255, 255, 255, 0.86) 56%,
+      rgba(255, 255, 255, 0.42) 66%,
+      rgba(255, 255, 255, 0.18) 78%,
+      rgba(255, 255, 255, 0.05) 89%,
+      rgba(255, 255, 255, 0)    96%,
+      rgba(255, 255, 255, 0)    100%) center / 100% 1.5px no-repeat,
+    /* Vertical streak — 2px wide, kept short (anamorphic lenses don't
+       elongate vertical). Visible only in the central ~56% of height. */
+    linear-gradient(180deg,
+      rgba(255, 240, 230, 0)    0%,
+      rgba(255, 240, 230, 0)    22%,
+      rgba(255, 240, 230, 0.55) 36%,
+      rgba(255, 255, 255, 1)    50%,
+      rgba(255, 240, 230, 0.55) 64%,
+      rgba(255, 240, 230, 0)    78%,
+      rgba(255, 240, 230, 0)    100%) center / 2px 100% no-repeat,
+    /* Optical-centre bloom — circular, slightly larger than before so the
+       hot spot reads against the longer streak. */
+    radial-gradient(circle 34px at center,
+      rgba(255, 255, 255, 0.65) 0%,
+      rgba(255, 255, 255, 0.32) 42%,
+      rgba(255, 255, 255, 0.10) 72%,
+      rgba(255, 255, 255, 0)    100%) center / 72px 72px no-repeat;
+  /* Override .ev::after's box-shadow — its 6px white halo would otherwise
+     trace the bounding box of this pseudo-element and read as a glowing
+     rectangle around the flare during each blink. */
+  box-shadow: none;
   mix-blend-mode: plus-lighter;
-  animation: signal-bloom 1.2s linear infinite;
+  opacity: 0;
+  will-change: opacity, transform;
+  animation: signal-flare 1.2s linear infinite;
   z-index: 2;
 }
-@media (max-width: 600px) { .ev.now::after { left: -21px; } }
-/* Signal-tower beacon — the dot itself ignites.
-   Two animations run together: signal-pulse drives the dot's own bg color
-   (dim red → white-hot → dim red) and a tight halo, while signal-bloom
-   on .ev.now::after additively layers a wide HDR-feel halo via
-   plus-lighter blending. P3 colors push past sRGB on capable displays. */
+@media (max-width: 600px) {
+  .ev.now::after {
+    /* Mobile keeps the 3.4:1 anamorphic ratio at a viewport-friendly size
+       (320×80 instead of 540×100). Recentre on the same dot centre. */
+    width: 320px; height: 80px;
+    left: -167.5px; top: -23.5px;
+  }
+}
+/* Signal-tower beacon — natural beacon cadence: rise → peak → fall →
+   BLINK OFF → relight → long ambient dwell. The off-beat at frame 18%
+   gives the dot a real "this light is cycling" feel rather than a
+   continuously-lit dot that merely brightens. The off is achieved by
+   collapsing background, halo, and brightness — NOT opacity — so the
+   dot's geometry stays anchored on the spine. One halo per state keeps
+   the bloom physical (real light sources produce one continuous
+   Gaussian-like radial spread, not stacked rings). */
 @keyframes signal-pulse {
   0% {
+    /* Ambient red — visible baseline so the live status reads at rest. */
     background: color(display-p3 1 0.18 0.27);
     box-shadow:
       0 0 0 4px var(--sky-deep),
-      0 0 0 5px rgba(255, 255, 255, 0.18),
-      0 0 4px 0 rgba(255, 49, 70, 0);
+      0 0 6px 1px rgba(255, 49, 70, 0.35);
     filter: brightness(1);
   }
   4% {
-    background: color(display-p3 1 1 1);
+    /* Rising — red brightens through pink toward the peak. */
+    background: color(display-p3 1 0.92 0.92);
     box-shadow:
       0 0 0 4px var(--sky-deep),
-      0 0 0 5px color(display-p3 1 1 1 / 1),
-      0 0 0 7px color(display-p3 1 0.7 0.97 / 0.65),
-      0 0 10px 2px color(display-p3 1 1 1 / 0.95);
+      0 0 14px 4px color(display-p3 1 0.9 0.9 / 0.85);
     filter: brightness(1.7);
   }
   10% {
+    /* Peak — hot white, in sync with the cross flare's full opacity. */
     background: color(display-p3 1 1 1);
     box-shadow:
       0 0 0 4px var(--sky-deep),
-      0 0 0 5px color(display-p3 1 1 1 / 1),
-      0 0 0 9px color(display-p3 1 0.7 0.97 / 0.78),
-      0 0 14px 3px color(display-p3 1 1 1 / 1);
+      0 0 22px 6px color(display-p3 1 1 1 / 1);
     filter: brightness(1.9);
   }
-  14%, 100% {
+  14% {
+    /* Falling — pink decay back toward red. */
+    background: color(display-p3 1 0.42 0.50);
+    box-shadow:
+      0 0 0 4px var(--sky-deep),
+      0 0 9px 2px color(display-p3 1 0.55 0.60 / 0.50);
+    filter: brightness(1.18);
+  }
+  18% {
+    /* BLINK OFF — dot collapses to a near-dark ember (dim red, no halo).
+       Reads as the beacon cutting between flashes, the way real signal
+       towers cycle. Done via background + brightness rather than opacity
+       so the dot stays positionally anchored on the spine. */
+    background: color(display-p3 0.22 0.05 0.08);
+    box-shadow:
+      0 0 0 4px var(--sky-deep),
+      0 0 1px 0 rgba(255, 49, 70, 0.08);
+    filter: brightness(0.32);
+  }
+  24%, 100% {
+    /* Relight + long dwell — back to ambient red, held for the rest of
+       the cycle so the eye registers a single clean beacon flash + off
+       + on event before the next rise. */
     background: color(display-p3 1 0.18 0.27);
     box-shadow:
       0 0 0 4px var(--sky-deep),
-      0 0 0 5px rgba(255, 255, 255, 0.18),
-      0 0 4px 0 rgba(255, 49, 70, 0);
+      0 0 6px 1px rgba(255, 49, 70, 0.35);
     filter: brightness(1);
   }
 }
 
-/* HDR-feel additive bloom — colored halo, plus-lighter blended.
-   Halo radius pulled in so the peak doesn't wash over neighboring text. */
-@keyframes signal-bloom {
-  0% {
-    box-shadow:
-      0 0 0 0 rgba(255, 49, 70, 0);
-  }
-  4% {
-    box-shadow:
-      0 0 22px 6px color(display-p3 1 0.18 0.27 / 0.95),
-      0 0 42px 14px color(display-p3 1 0.85 0.27 / 0.7),
-      0 0 72px 28px color(display-p3 1 0.18 0.27 / 0.30);
-  }
-  10% {
-    box-shadow:
-      0 0 30px 8px color(display-p3 1 0.18 0.27 / 1),
-      0 0 56px 20px color(display-p3 1 0.85 0.27 / 0.85),
-      0 0 100px 38px color(display-p3 1 0.18 0.27 / 0.40);
-  }
-  14%, 100% {
-    box-shadow:
-      0 0 0 0 rgba(255, 49, 70, 0);
-  }
+/* Cross lens flare — perpendicular streaks of light that read as an
+   anamorphic camera artifact when looking at a bright source. The
+   ::after sits centered on the live dot's geometric center, with two
+   linear-gradient streaks (horizontal + vertical, 2px thick each) that
+   taper to transparent at the ends. Plus-lighter blending makes them
+   add light to whatever sits underneath without darkening anything. */
+@keyframes signal-flare {
+  0% { opacity: 0; transform: scale(0.3); }
+  4% { opacity: 0.75; transform: scale(0.82); }
+  10% { opacity: 1; transform: scale(1.08); }
+  14%, 100% { opacity: 0; transform: scale(0.3); }
 }
 .ev .yr {
   position: absolute;
-  left: -100px;
+  left: -116px;
   top: 8px;
-  width: 76px;
+  width: 92px;
   text-align: right;
   font-family: var(--round);
   font-size: 11px;
@@ -670,6 +1269,11 @@ section.s::after {
   text-transform: uppercase;
   color: var(--muted);
   line-height: 1.4;
+  /* Year ranges like "2023 — 2026" must stay on a single line; the prior
+     76px column was just narrow enough to break the em-dash range onto
+     two lines. Bumped width and shifted left so the right edge keeps the
+     same gap to the timeline spine. */
+  white-space: nowrap;
 }
 .ev .yr b { color: var(--fg); font-weight: 500; display: block; }
 @media (max-width: 600px) {
@@ -763,20 +1367,23 @@ section.s::after {
   will-change: transform, box-shadow;
 }
 a.proj-row { cursor: pointer; }
-a.proj-row:hover {
-  padding-left: 16px;
-  transform: translateZ(60px) translateY(-6px);
-  background:
-    radial-gradient(120% 200% at 0% 0%, rgba(254,125,255,0.18) 0%, rgba(254,125,255,0) 60%),
-    linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%);
-  box-shadow:
-    0 4px 8px rgba(0,0,0,0.22),
-    0 16px 32px rgba(0,0,0,0.30),
-    0 40px 80px rgba(0,0,0,0.40),
-    0 80px 140px -20px rgba(254,125,255,0.30);
-  z-index: 5;
+@media (hover: hover) {
+  .proj-row:hover {
+    padding-left: 18px;
+    transform: translateZ(36px) translateY(-3px);
+    background:
+      radial-gradient(120% 200% at 0% 0%, rgba(254,125,255,0.16) 0%, rgba(254,125,255,0) 60%),
+      linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    box-shadow:
+      inset 2px 0 0 var(--bloom),
+      0 2px 6px rgba(0,0,0,0.20),
+      0 12px 28px rgba(0,0,0,0.28),
+      0 32px 64px rgba(0,0,0,0.34),
+      0 60px 120px -24px rgba(254,125,255,0.28);
+    z-index: 5;
+  }
+  .proj-row:hover + li > .proj-row { border-top-color: transparent; }
 }
-a.proj-row:hover + li > .proj-row { border-top-color: transparent; }
 .proj-row .id {
   font-family: var(--round);
   font-size: 11px;
@@ -813,7 +1420,9 @@ a.proj-row:hover + li > .proj-row { border-top-color: transparent; }
   transition: transform 0.25s ease, color 0.25s ease;
   font-size: 0.8em;
 }
-a.proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloom); }
+@media (hover: hover) {
+  .proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloom); }
+}
 .proj-row .body p {
   font-family: var(--sans);
   font-size: 14.5px;
@@ -841,8 +1450,9 @@ a.proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloo
 .outro {
   padding: clamp(60px, 9vw, 140px) 0;
   position: relative;
+  /* See section.s rationale — outro stays at layout z=0; .wrap carries
+     the parallax Z translate under preserve-3d. */
   transform-style: preserve-3d;
-  will-change: transform;
 }
 .outro h2 {
   font-family: var(--serif);
@@ -864,7 +1474,7 @@ a.proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloo
 }
 .outro .row {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr clamp(300px, 22vw, 380px);
   gap: clamp(32px, 5vw, 80px);
   align-items: end;
 }
@@ -872,15 +1482,24 @@ a.proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloo
 .outro .links {
   list-style: none; padding: 0; margin: 0;
 }
+/* Channels rack — each row is a 3-col grid: channel badge, label, link.
+   Reads as a transmitter dispatch console. The `.ch` mono badge sits in
+   a fixed column at the left so all four rows align on a vertical edge. */
 .outro .links li {
   border-top: 1px solid var(--rule);
   padding: 18px 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: 64px 96px 1fr;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 24px;
+  gap: 18px;
 }
 .outro .links li:last-child { border-bottom: 1px solid var(--rule); }
+.outro .links .ch {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  color: var(--muted-2);
+}
 .outro .links .lab {
   font-family: var(--round);
   font-size: 11px;
@@ -895,51 +1514,91 @@ a.proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloo
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: border-color 0.2s, transform 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+}
+.outro .links a .arr {
   display: inline-block;
+  margin-left: 8px;
+  color: var(--muted);
+  transition: transform 0.25s ease, color 0.25s ease;
 }
 .outro .links a:hover { border-bottom-color: var(--bloom); color: var(--bloom-soft); transform: translateX(4px); }
+.outro .links a:hover .arr { color: var(--bloom); transform: translateX(4px); }
+@media (max-width: 720px) {
+  .outro .links li {
+    grid-template-columns: 56px 1fr;
+    grid-template-rows: auto auto;
+    row-gap: 4px;
+    column-gap: 14px;
+  }
+  .outro .links .ch { grid-row: 1 / span 2; }
+  .outro .links .lab { grid-column: 2; }
+  .outro .links a { grid-column: 2; }
+}
+/* CTA card — Liquid Glass with stronger pink tint and bigger lift.
+   The focal pull of the contact section: heavier blur+saturate, more
+   pink in the absorbed-tint layer, pink-warm rim light on the bottom. */
 .outro .cta-card {
   position: relative;
-  border: 1px solid rgba(255, 168, 246, 0.7);
-  padding: 28px 24px;
+  border: 1px solid rgba(255, 168, 246, 0.28);
+  border-radius: 22px;
+  padding: clamp(28px, 1.8vw, 34px) clamp(24px, 1.6vw, 28px);
   background:
-    radial-gradient(140% 160% at 0% 0%, rgba(255,128,247,0.36) 0%, rgba(255,128,247,0) 60%),
-    rgba(11, 35, 78, 0.55);
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.06) 26%,
+      rgba(255, 255, 255, 0) 60%),
+    radial-gradient(140% 160% at 0% 0%, rgba(255, 128, 247, 0.36) 0%, rgba(255, 128, 247, 0) 60%),
+    rgba(11, 35, 78, 0.36);
+  backdrop-filter: blur(32px) saturate(190%) brightness(1.10);
+  -webkit-backdrop-filter: blur(32px) saturate(190%) brightness(1.10);
   color: var(--fg);
   transform-style: preserve-3d;
   transition: transform 0.6s cubic-bezier(.22,1,.36,1), box-shadow 0.6s ease;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.30),
-    inset 0 0 36px rgba(255,128,247,0.15),
-    0 0 0 1px rgba(255, 128, 247, 0.20),
-    0 4px 8px rgba(0,0,0,0.22),
-    0 16px 40px rgba(0,0,0,0.36),
-    0 0 60px rgba(255, 128, 247, 0.30),
-    0 40px 100px -20px rgba(255,128,247,0.55);
+    inset 0 1px 0 rgba(255, 255, 255, 0.50),
+    inset 1px 0 0 rgba(255, 255, 255, 0.08),
+    inset -1px 0 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(255, 168, 244, 0.20),
+    inset 0 0 40px rgba(255, 128, 247, 0.16),
+    0 0 0 1px rgba(255, 128, 247, 0.18),
+    0 1px 2px rgba(0, 0, 0, 0.22),
+    0 12px 28px rgba(0, 0, 0, 0.28),
+    0 36px 72px rgba(0, 0, 0, 0.32),
+    0 0 80px rgba(255, 128, 247, 0.30),
+    0 56px 112px -28px rgba(255, 128, 247, 0.50);
 }
-/* matte grain on the cta card */
+/* matte grain on the cta card — softened so the glass reads cleaner */
 .outro .cta-card::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   border-radius: inherit;
-  opacity: 0.12;
+  opacity: 0.08;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 240px 240px;
 }
 .outro .cta-card > * { position: relative; z-index: 1; }
-.outro .cta-card:hover {
-  transform: translateZ(60px) translateY(-12px) rotateX(-4deg);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.32),
-    inset 0 0 40px rgba(255,128,247,0.14),
-    0 8px 16px rgba(0,0,0,0.26),
-    0 40px 80px rgba(0,0,0,0.42),
-    0 100px 180px -20px rgba(255,128,247,0.55);
+@media (hover: hover) {
+  .outro .cta-card:hover {
+    transform: translateZ(48px) translateY(-10px) rotateX(-3deg);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.62),
+      inset 1px 0 0 rgba(255, 255, 255, 0.10),
+      inset -1px 0 0 rgba(255, 255, 255, 0.10),
+      inset 0 -1px 0 rgba(255, 168, 244, 0.28),
+      inset 0 0 52px rgba(255, 128, 247, 0.22),
+      0 0 0 1px rgba(255, 128, 247, 0.26),
+      0 2px 4px rgba(0, 0, 0, 0.26),
+      0 24px 48px rgba(0, 0, 0, 0.32),
+      0 60px 120px rgba(0, 0, 0, 0.36),
+      0 0 96px rgba(255, 128, 247, 0.42),
+      0 96px 180px -28px rgba(255, 128, 247, 0.60);
+  }
 }
 .outro .cta-card .lab {
   font-family: var(--round);
@@ -976,7 +1635,9 @@ a.proj-row:hover .body h3 .arrow { transform: translateX(8px); color: var(--bloo
 
 /* ---------- Footer ---------- */
 footer.foot {
-  border-top: 1px solid var(--rule);
+  /* No top border — the contact/footer transition rides the body's
+     atmosphere gradient (lower troposphere → dusk floor); a 1px rule
+     here cut the page in half visually. */
   padding: 28px var(--pad-x);
   display: flex;
   justify-content: space-between;
@@ -993,14 +1654,414 @@ footer.foot {
 footer.foot .sig {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 22px;
+  font-size: clamp(18px, 4.4vw, 22px);
   color: var(--bloom-soft);
   text-transform: none;
   letter-spacing: 0;
   transform: rotate(-2deg);
+  transform-origin: right bottom;
+  padding: 4px 0 0 8px;
 }
 
-/* ---------- Reveal w/ stronger 3D ---------- */
+/* ---------- Section rail thread (the small "control strip" caption that
+   sits below the section number/name and turns the otherwise empty 200px
+   side rail into an instrument readout) ---------- */
+.s .head .label .state,
+.outro .head .label .state {
+  margin-top: 14px;
+  padding-left: 10px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: var(--muted-2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+.s .head .label .state::before,
+.outro .head .label .state::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  bottom: 4px;
+  width: 1px;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.05) 100%);
+}
+.s .head .label .state b,
+.outro .head .label .state b {
+  font-weight: 500;
+  color: var(--fg-2);
+  letter-spacing: 0.18em;
+}
+.s .head .label .state i,
+.outro .head .label .state i {
+  font-style: normal;
+  color: var(--muted-2);
+  letter-spacing: 0.16em;
+}
+
+/* ---------- Callsign card (sits in About's left column) ---------- */
+.about-grid > .callsign-card {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 28px 26px 24px;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0.02) 35%,
+      rgba(255, 255, 255, 0) 70%),
+    radial-gradient(140% 160% at 0% 0%, rgba(255, 128, 247, 0.16) 0%, rgba(255, 128, 247, 0) 60%),
+    rgba(11, 35, 78, 0.34);
+  backdrop-filter: blur(22px) saturate(170%) brightness(1.08);
+  -webkit-backdrop-filter: blur(22px) saturate(170%) brightness(1.08);
+  font-family: var(--round);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.20),
+    0 20px 40px rgba(0, 0, 0, 0.24),
+    0 44px 88px -24px rgba(11, 35, 78, 0.48);
+}
+.about-grid > .callsign-card .head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.20em;
+  color: var(--fg-2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+}
+.about-grid > .callsign-card .head .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: color(display-p3 1 0.18 0.27);
+  box-shadow:
+    0 0 0 3px var(--sky-deep),
+    0 0 6px 1px rgba(255, 49, 70, 0.42);
+  animation: signal-pulse 1.2s linear infinite;
+  flex-shrink: 0;
+}
+.about-grid > .callsign-card .head .t { color: var(--fg); }
+/* Stacked dt/dd — plain-English labels stacked above larger mono values.
+   Bumped from 9/12px to 10/14px so the at-a-glance facts are readable
+   without leaning in. */
+.about-grid > .callsign-card dl {
+  margin: 0;
+  display: block;
+}
+.about-grid > .callsign-card dt {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  color: var(--muted-2);
+  margin-top: 16px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.about-grid > .callsign-card dt:first-of-type { margin-top: 0; }
+.about-grid > .callsign-card dd {
+  display: block;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--fg);
+  word-break: break-word;
+}
+.about-grid > .callsign-card dd.live {
+  color: var(--bloom-soft);
+  text-shadow: 0 0 6px rgba(255, 168, 244, 0.30);
+}
+.about-grid > .callsign-card .bcast {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.about-grid > .callsign-card .bcast .lab {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  color: var(--muted-2);
+  margin-bottom: 10px;
+}
+.about-grid > .callsign-card .bcast ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 6px;
+}
+.about-grid > .callsign-card .bcast li {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  padding: 4px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: var(--fg-2);
+  background: rgba(255, 255, 255, 0.04);
+}
+.about-grid > .callsign-card .bcast li[data-i="live"] {
+  color: var(--bloom-soft);
+  border-color: rgba(255, 168, 244, 0.32);
+  background: rgba(255, 128, 247, 0.10);
+}
+@media (max-width: 720px) {
+  .about-grid > .callsign-card { position: static; }
+}
+
+/* Per-event glyph above the year — "ED / WK / CT / SD" */
+.ev .yr .glyph {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  color: var(--muted-2);
+  margin-bottom: 6px;
+}
+.ev.now .yr .glyph {
+  color: var(--bloom-soft);
+  text-shadow: 0 0 6px rgba(255, 168, 244, 0.45);
+}
+@media (max-width: 600px) {
+  .ev .yr .glyph { display: inline-block; margin-right: 8px; margin-bottom: 0; }
+}
+
+/* ---------- Transmit button on the cta card ---------- */
+.outro .cta-card.transmit a.tx-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px 12px 16px;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 60%),
+    color(display-p3 1 0.50 0.96 / 0.16);
+  color: var(--fg);
+  border: 1px solid rgba(255, 168, 244, 0.42);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 0 0 1px rgba(255, 168, 244, 0.10),
+    0 6px 14px rgba(255, 49, 134, 0.25),
+    0 14px 32px rgba(255, 49, 134, 0.22);
+  transition: filter 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+}
+.outro .cta-card.transmit a.tx-btn .play {
+  font-size: 9px;
+  color: var(--bloom-soft);
+  display: inline-flex;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 168, 244, 0.55);
+  background: color(display-p3 1 0.45 0.92 / 0.20);
+  box-shadow:
+    inset 0 0 6px rgba(255, 168, 244, 0.42),
+    0 0 8px rgba(255, 128, 247, 0.32);
+  margin-left: -4px;
+}
+.outro .cta-card.transmit a.tx-btn .arr {
+  margin-left: 4px;
+  transition: transform 0.25s ease;
+}
+@media (hover: hover) {
+  .outro .cta-card.transmit a.tx-btn:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 0 0 1px rgba(255, 168, 244, 0.30),
+      0 10px 22px rgba(255, 49, 134, 0.40),
+      0 24px 56px rgba(255, 49, 134, 0.32),
+      0 0 64px rgba(255, 128, 247, 0.42);
+  }
+  .outro .cta-card.transmit a.tx-btn:hover .arr { transform: translateX(6px); }
+}
+
+/* ---------- Footer sign-off ---------- */
+footer.foot .signoff {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+footer.foot .signoff .who {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(15px, 2.4vw, 18px);
+  color: var(--bloom-soft);
+  text-transform: none;
+  letter-spacing: 0;
+}
+footer.foot .signoff .sep { color: rgba(255, 255, 255, 0.30); }
+footer.foot .signoff .tx { color: var(--muted); }
+footer.foot .signoff .cur {
+  display: inline-block;
+  font-style: normal;
+  width: 0.55em;
+  color: var(--bloom-soft);
+  filter: brightness(1);
+  text-shadow: 0 0 8px rgba(255, 168, 244, 0.55);
+  animation: signoff-cursor 1.2s linear infinite;
+  margin-left: 2px;
+}
+footer.foot .meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--muted-2);
+}
+@keyframes signoff-cursor {
+  0%, 24%, 100% {
+    color: var(--bloom-soft);
+    filter: brightness(1);
+    text-shadow: 0 0 8px rgba(255, 168, 244, 0.55);
+  }
+  10% {
+    color: rgba(255, 220, 250, 1);
+    filter: brightness(1.5);
+    text-shadow:
+      0 0 12px rgba(255, 168, 244, 0.85),
+      0 0 24px rgba(255, 128, 247, 0.40);
+  }
+  18% {
+    color: rgba(80, 30, 70, 1);
+    filter: brightness(0.45);
+    text-shadow: none;
+  }
+}
+
+/* ---------- Transmission tower (silhouette behind Projects + Contact) ----------
+   The trail spine is the TIP of the tower; the lattice body picks up below
+   it and runs to a splayed foundation just above the footer. Drawn as a
+   dark SVG silhouette via background-image, sized to span the entire
+   tower-zone (Projects + Contact). Sits BEHIND content because it's the
+   first child of the positioned tower-zone — DOM order paints it first,
+   sections paint over it. Aria-hidden, decorative.
+
+   Centred on --tower-x (the same X as the trail spine) so the tip and
+   body line up. The body widens from ~25% of tower width at the top
+   (cross-arm assembly) to 100% at the foundation base. */
+:root {
+  /* Same X as the trail spine. .trail::before is positioned `left: 92px`
+     from .trail's padding-box left edge, so the +92 is the spine offset
+     within .trail (not 192 — .trail's own padding-left does not shift the
+     absolutely-positioned ::before). */
+  --tower-x: calc(max(0px, (100% - var(--max)) / 2) + var(--pad-x) + 200px + clamp(24px, 4vw, 64px) + 92px);
+  --tower-w: clamp(320px, 36vw, 560px);
+  /* Cross-arm assembly now starts at viewBox y=0 (was y=40) so it lives
+     at the very top edge of the rendered SVG. Combined with the negative
+     `top` offset on .transmission-tower below, this puts the cross-arm
+     bar exactly where the trail spine ends — letting the antenna mast
+     visually flow into the tower body. A central vertical spine line
+     (x=120, y=0→55) runs THROUGH the cross-arm assembly so the trail
+     tip continues down into the body neck without a break. */
+  --tower-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 1000' preserveAspectRatio='none'><g fill='none' stroke='%23030814' stroke-linecap='round' stroke-linejoin='round'><line x1='120' y1='0' x2='120' y2='55' stroke-width='3'/><line x1='50' y1='0' x2='190' y2='0' stroke-width='3.5'/><line x1='60' y1='0' x2='60' y2='55' stroke-width='2.5'/><line x1='180' y1='0' x2='180' y2='55' stroke-width='2.5'/><line x1='90' y1='0' x2='90' y2='55' stroke-width='2'/><line x1='150' y1='0' x2='150' y2='55' stroke-width='2'/><line x1='90' y1='55' x2='150' y2='55' stroke-width='2.5'/><line x1='100' y1='55' x2='10' y2='1000' stroke-width='4'/><line x1='140' y1='55' x2='230' y2='1000' stroke-width='4'/><line x1='100' y1='55' x2='150' y2='160' stroke-width='1.6'/><line x1='140' y1='55' x2='90' y2='160' stroke-width='1.6'/><line x1='90' y1='160' x2='150' y2='160' stroke-width='2'/><line x1='90' y1='160' x2='160' y2='265' stroke-width='1.6'/><line x1='150' y1='160' x2='80' y2='265' stroke-width='1.6'/><line x1='80' y1='265' x2='160' y2='265' stroke-width='2'/><line x1='80' y1='265' x2='170' y2='370' stroke-width='1.6'/><line x1='160' y1='265' x2='70' y2='370' stroke-width='1.6'/><line x1='70' y1='370' x2='170' y2='370' stroke-width='2'/><line x1='70' y1='370' x2='180' y2='475' stroke-width='1.6'/><line x1='170' y1='370' x2='60' y2='475' stroke-width='1.6'/><line x1='60' y1='475' x2='180' y2='475' stroke-width='2'/><line x1='60' y1='475' x2='190' y2='580' stroke-width='1.6'/><line x1='180' y1='475' x2='50' y2='580' stroke-width='1.6'/><line x1='50' y1='580' x2='190' y2='580' stroke-width='2'/><line x1='50' y1='580' x2='200' y2='685' stroke-width='1.6'/><line x1='190' y1='580' x2='40' y2='685' stroke-width='1.6'/><line x1='40' y1='685' x2='200' y2='685' stroke-width='2'/><line x1='40' y1='685' x2='210' y2='790' stroke-width='1.6'/><line x1='200' y1='685' x2='30' y2='790' stroke-width='1.6'/><line x1='30' y1='790' x2='210' y2='790' stroke-width='2'/><line x1='30' y1='790' x2='220' y2='895' stroke-width='1.6'/><line x1='210' y1='790' x2='20' y2='895' stroke-width='1.6'/><line x1='20' y1='895' x2='220' y2='895' stroke-width='2'/><line x1='20' y1='895' x2='230' y2='1000' stroke-width='1.6'/><line x1='220' y1='895' x2='10' y2='1000' stroke-width='1.6'/><line x1='5' y1='1000' x2='235' y2='1000' stroke-width='4.5'/></g></svg>");
+}
+
+.tower-zone {
+  position: relative;
+}
+.tower-zone > .transmission-tower {
+  position: absolute;
+  /* Extend FAR upward into the trail section so the tower body starts
+     well above the trail spine end. The trail spine remains visible
+     above the tower's cross-arm assembly (the user accepted the tip
+     not joining all the way), but the tower itself reads as much
+     taller / more imposing relative to the tip. */
+  top: calc(-1 * clamp(220px, 26vh, 380px));
+  bottom: 0;
+  /* Centre the wide silhouette on the trail spine X */
+  left: calc(var(--tower-x) - var(--tower-w) / 2);
+  width: var(--tower-w);
+  pointer-events: none;
+  background-image: var(--tower-svg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center top;
+  opacity: 0.6;
+  /* z-index -2 places the tower BEHIND the bg-harumaki ridge (z:-1)
+     and bg-buildings (z:-1), so the landscape silhouettes occlude the
+     tower foundation — reads as the tower standing behind/inside the
+     distant landscape rather than floating above it. */
+  z-index: -2;
+}
+
+@media (max-width: 720px) {
+  /* Column math doesn't survive the responsive single-column collapse;
+     the wide tower would crash through every card and text block. */
+  .tower-zone > .transmission-tower { display: none; }
+}
+@media print {
+  .tower-zone > .transmission-tower { display: none; }
+}
+
+/* ---------- HUD ticker (fixed corner instrument margin) ---------- */
+.hud-ticker {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: rgba(188, 206, 236, 0.42);
+  text-shadow: 0 0 8px rgba(2, 4, 12, 0.6);
+}
+.hud-ticker .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: color(display-p3 1 0.18 0.27);
+  box-shadow:
+    0 0 0 2px rgba(2, 4, 12, 0.7),
+    0 0 5px 1px rgba(255, 49, 70, 0.45);
+  animation: signal-pulse 1.2s linear infinite;
+}
+@media (max-width: 720px) {
+  .hud-ticker { display: none; }
+}
+
+/* ---------- Reveal w/ stronger 3D ----------
+   Default reveal is the dramatic "lift+tilt" — used for hero, section
+   heads, the cta card. Variants below give other section types their
+   own motion language so the page doesn't read uniformly. */
 .reveal {
   opacity: 0;
   transform: translateY(40px) translateZ(-160px) rotateX(8deg);
@@ -1012,18 +2073,190 @@ footer.foot .sig {
 }
 .reveal.in { opacity: 1; transform: translateY(0) translateZ(0) rotateX(0); }
 
+/* Recede — soft Z-only push, used for prose blocks where rotation is too theatrical. */
+.reveal.reveal--recede { transform: translateY(20px) translateZ(-100px); }
+.reveal.reveal--recede.in { transform: translateY(0) translateZ(0); }
+
+/* Sweep — enters from the left, echoing the trail's cross-arm direction. */
+.reveal.reveal--sweep { transform: translateX(-36px) translateZ(-40px); transform-origin: 0 50%; }
+.reveal.reveal--sweep.in { transform: translateX(0) translateZ(0); }
+
+/* Settle — gentle Y + tiny scale, used for project rows so they "land". */
+.reveal.reveal--settle { transform: translateY(28px) scale(0.985); }
+.reveal.reveal--settle.in { transform: translateY(0) scale(1); }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal { opacity: 1; transform: none; transition: none; }
-  .skill-list .bar::after { transition: none; }
+  .reveal,
+  .reveal.reveal--recede,
+  .reveal.reveal--sweep,
+  .reveal.reveal--settle { opacity: 1; transform: none; transition: none; }
+  .s .head .label .num,
+  .outro .head .label .num,
+  .s .head .label .num small,
+  .outro .head .label .num small {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+  .skill-list .bar > span,
+  .skill-list .bar > em { transition: none !important; }
   .hero h1, .hero .tagline, .hero .id-card, .hero .eyebrow { transform: none !important; }
-  section.s, .outro { transform: none !important; }
+  section.s, .outro { transform: none !important; animation: none !important; }
   .proj-row:hover, .outro .cta-card:hover { transform: none !important; }
+  /* Static fill on segmented meters when motion is reduced */
+  .skill-list .bar > span[data-on] {
+    background: var(--bloom-soft) !important;
+    border-color: rgba(255, 168, 244, 0.45) !important;
+    box-shadow: 0 0 4px rgba(255, 168, 244, 0.55) !important;
+  }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---------- Mobile-specific tuning ----------
+   Heavy backdrop-filter, dramatic 3D reveals, and large display type
+   all need restraint on small viewports — both for paint performance
+   on low-end phones and for visual scale. */
+@media (max-width: 720px) {
+  /* Phantom-gap fix: every section grid carries an .empty spacer as
+     its left column on desktop. When the grid collapses to 1fr it
+     becomes a 0-height row that still triggers the row gap, eating
+     24-64px of vertical space below the section heading. Hide it. */
+  .about-grid > .empty,
+  .skills-grid > .empty,
+  .trail-grid > .empty,
+  .proj-grid > .empty { display: none; }
+
+  /* Liquid Glass — drastically reduced blur on mobile. backdrop-filter
+     blur is the single most expensive property on weaker GPUs (mobile +
+     integrated chips); blur(18-32px) was killing frame rates. blur(8px)
+     keeps the glass feel at a fraction of the cost. */
+  .hero .id-card {
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+  }
+  .outro .cta-card {
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+  }
+  .about-grid > .callsign-card {
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+  }
+
+  /* Stop ALL scroll-driven animations on mobile. The bg-stars
+     background-position animation forces full-viewport repaints per
+     scroll change; the horizon-roll animation re-rasterises the SVG
+     arc each frame; the section-depth-roll updates transform/opacity
+     on every wrap. Touch devices benefit none of these visually
+     (parallax is barely noticeable mid-swipe) but pay the full GPU
+     cost — disabling them removes the lag entirely. */
+  .bg-stars, .bg-wash, .bg-harumaki { animation: none !important; }
+  section.s, .outro,
+  section.s > .wrap, .outro > .wrap { animation: none !important; }
+  /* Reset --depth-z/o so .wrap doesn't sit at the recede default */
+  section.s > .wrap, .outro > .wrap {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Reveal motion — drop the dramatic Z-recede and rotation; keep just
+     a subtle Y so the reveals still feel intentional but don't paint
+     huge offscreen layers. Sweep is reduced so it can't push past the
+     viewport edge on narrow screens. */
+  .reveal { transform: translateY(24px); }
+  .reveal.in { transform: translateY(0); }
+  .reveal.reveal--recede { transform: translateY(20px); }
+  .reveal.reveal--recede.in { transform: translateY(0); }
+  .reveal.reveal--sweep { transform: translateX(-16px); }
+  .reveal.reveal--sweep.in { transform: translateX(0); }
+  .reveal.reveal--settle { transform: translateY(20px) scale(0.99); }
+  .reveal.reveal--settle.in { transform: translateY(0) scale(1); }
+
+  /* Section number — scale with viewport instead of fixed 56px. */
+  .s .head .label .num,
+  .outro .head .label .num {
+    font-size: clamp(40px, 11vw, 56px);
+  }
+
+  /* Horizon bands — shorter on mobile so they don't crowd compact section
+     heads, but stratification is preserved. */
+  section.s::before { height: 80px; }
+  section.s::after { height: 70px; }
+  .outro::before { height: 80px; }
+
+  /* Hero h1 text-shadow — drop the deepest layers on mobile to save
+     paint cost; the bloom-soft glow on em remains. */
+  .hero h1 {
+    text-shadow:
+      0 1px 0 rgba(255,255,255,0.4),
+      0 2px 0 rgba(8,35,76,0.4),
+      0 8px 14px rgba(8,35,76,0.32);
+  }
+
+  /* Sticky label — disable on mobile; the head is short enough that
+     sticky has no room to operate and can sit awkwardly during scroll. */
+  .s .head .label,
+  .outro .head .label { position: static; }
+
+  /* DoF cost-cutting on mobile —
+     1. Drop the static layered blur on bg-stars / bg-wash. Mobile GPUs
+        re-rasterize the bg-stars layer every frame during parallax
+        (background-position changes), and applying filter:blur on
+        each pass causes scroll jank. The starscape stays sharp on
+        small screens; depth comes from the body atmosphere gradient
+        + vignette + per-section opacity falloff instead.
+     2. Soften the vignette — full-strength edge darkening becomes
+        oppressive on a 360-420px viewport where most content sits
+        close to the edges. */
+  .bg-stars,
+  .bg-wash { filter: none; }
+  .bg-vignette {
+    background: radial-gradient(150% 110% at 50% 50%,
+      transparent             35%,
+      rgba(2, 4, 12, 0.18)    80%,
+      rgba(2, 4, 12, 0.32)   100%);
+  }
+
+  /* Section heading H2 — clamp the floor so it doesn't dominate small
+     viewports. 40px min was too dense at 360-400px widths. */
+  .s h2 { font-size: clamp(30px, 7vw, 56px); }
+  .outro h2 { font-size: clamp(40px, 11vw, 96px); }
+
+  /* CTA card on mobile — slightly tighter padding so the row layout
+     doesn't stack too tall once it collapses to a single column. */
+  .outro .cta-card { padding: clamp(22px, 5vw, 28px) clamp(20px, 4.5vw, 24px); }
+
+  /* Skill bar reveal — slightly faster on mobile so the staggered LED
+     fill doesn't feel like the page is still loading after a long
+     scroll-in. */
+  .skill-list .bar > span { transition-duration: 0.4s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(1)  { transition-delay: 0.03s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(2)  { transition-delay: 0.06s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(3)  { transition-delay: 0.09s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(4)  { transition-delay: 0.12s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(5)  { transition-delay: 0.15s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(6)  { transition-delay: 0.18s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(7)  { transition-delay: 0.21s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(8)  { transition-delay: 0.24s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(9)  { transition-delay: 0.27s; }
+  .skill-list.in-view .bar > span[data-on]:nth-child(10) { transition-delay: 0.30s; }
+
+  /* HUD ticker hidden on mobile; nothing else to adjust here. */
+  .hud-ticker { display: none; }
+
+  /* About callsign — drop sticky on mobile since the section is short. */
+  .about-grid > .callsign-card { position: static; }
+}
+
+@media (max-width: 420px) {
+  /* Tiny phones — let the hero h1 breathe; the 56px floor is too dense. */
+  .hero h1 { font-size: clamp(48px, 13vw, 56px); }
+  .hero .tagline { font-size: clamp(18px, 4.5vw, 22px); }
+  /* Eyebrow can wrap on extra-narrow */
+  .hero .eyebrow { flex-wrap: wrap; gap: 8px; }
 }
 
 /* ---------- Print ---------- */
@@ -1033,7 +2266,9 @@ footer.foot .sig {
     background: #fff !important;
     color: #000 !important;
   }
-  body::before, body::after { display: none; }
+  body::before { display: none; }
+  .bg-stars, .bg-wash, .bg-harumaki, .bg-vignette { display: none !important; }
+  section.s::before, section.s::after, .outro::before { display: none !important; }
   section.s, .hero { padding: 24px 0; }
   .hero h1, .hero .tagline, .hero .eyebrow b,
   .s h2, .s .head .label .num,
@@ -1048,11 +2283,26 @@ footer.foot .sig {
   }
   .hero .swipe { background: #000 !important; color: #fff !important; box-shadow: none !important; }
   .reveal { opacity: 1; transform: none; }
-  .skill-list .bar { background: #ccc !important; }
-  .skill-list .bar::after { width: var(--w, 60%) !important; background: #000 !important; box-shadow: none !important; }
+  .skill-list .bar { background: transparent !important; }
+  .skill-list .bar > span { background: #f0f0f0 !important; border-color: #bbb !important; box-shadow: none !important; }
+  .skill-list .bar > span[data-on] { background: #000 !important; border-color: #000 !important; }
+  .skill-list .bar > em { color: #000 !important; }
+  .hud-ticker, .outro .cta-card.transmit a.tx-btn .play, footer.foot .signoff .cur { display: none !important; }
+  .about-grid > .callsign-card { background: #f5f5f5 !important; border-color: #999 !important; box-shadow: none !important; color: #000 !important; }
+  .about-grid > .callsign-card dt, .about-grid > .callsign-card dd, .about-grid > .callsign-card .bcast .lab, .about-grid > .callsign-card .bcast li { color: #000 !important; background: transparent !important; border-color: #999 !important; }
   .hero .id-card { background: #f5f5f5 !important; color: #000 !important; box-shadow: none !important; border-color: #999 !important; }
   .hero .id-card dt, .hero .id-card dd, .hero .id-card .live { color: #000 !important; }
   .ev::before, .ev.now::before { background: #000 !important; border-color: #000 !important; box-shadow: none !important; animation: none !important; filter: none !important; }
   .ev::after, .ev.now::after, .trail::after { display: none !important; }
   .trail::before { background: #999 !important; box-shadow: none !important; top: 8px !important; }
+  .reveal,
+  .reveal.reveal--recede,
+  .reveal.reveal--sweep,
+  .reveal.reveal--settle { opacity: 1 !important; transform: none !important; }
+  .s .head .label .num,
+  .outro .head .label .num,
+  .s .head .label .num small,
+  .outro .head .label .num small {
+    opacity: 1 !important; transform: none !important;
+  }
 }
