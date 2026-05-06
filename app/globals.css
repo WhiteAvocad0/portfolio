@@ -933,51 +933,34 @@ section#about .head { grid-template-columns: 380px 1fr; }
    tapered antenna mast, with a cap and signal pulse at the very top, then
    continues down through the timeline as the lattice tower's central beam.
    Extension stays clear of the section heading row above. */
-/* Trail spine = the SAME single line as the tower's central spine.
-   Above the cross-arm, a real transmission tower has a single antenna
-   mast — only below the cross-arm do the body legs splay out into a
-   lattice. So the tip is rendered as a solid dark-navy bar matching the
-   tower's central spine line: same #030814 colour, same 0.6 alpha
-   (matching .transmission-tower's wrapper opacity), same ~7px rendered
-   width as the tower's stroke-width:3 central spine in its 240-unit
-   viewBox at 518px width. Pill-shaped via border-radius for the
-   stroke-linecap:round look used in the SVG. */
+/* Trail spine — a 7px dark navy bar running through the trail content,
+   from just below the red live-event beacon (the topmost point) down to
+   the bottom of trail. The tower SVG below also carries a central spine
+   line (x=120, y=0→1000) running the full body height; where the two
+   overlap inside the trail-body intersection, they share the same x and
+   colour so they read as one continuous line — the cross-arm horizontal
+   bar visually anchors the transition. */
 .trail::before {
   content: '';
   position: absolute;
-  /* Spine starts at -34 (just below the antenna cap which sits at -42 →
-     -34 with its 8px height, so the spine begins exactly where the cap
-     ends) and extends down to .trail.bottom - 8. The blinking antenna
-     cap is the topmost point — nothing extends above it (no upward
-     box-shadow halo). The cap supplies its own prominent glow. */
-  left: 89px; top: -34px; bottom: 8px;
+  /* Top:20px = just below the red beacon (.ev.now::before is at top:13,
+     height:7, so bottom edge at 20). Beacon crowns the spine — no white
+     antenna cap above it; the red blinking light IS the highest line. */
+  left: 89px;
+  top: 20px;
+  /* Negative bottom — the spine extends past .trail's own bottom edge
+     into the section gap below, overlapping the SVG cross-arm and the
+     SVG's central spine line. Same x, same colour → merges as one
+     continuous vertical from beacon all the way into the tower body. */
+  bottom: calc(-1 * clamp(300px, 42vh, 720px));
   width: 7px;
   background: rgba(3, 8, 20, 0.6);
   border-radius: 3.5px;
-}
-/* Antenna tip cap — small white blinking light at the very top of the
-   tip, sized to match the red signal beacon (7x7 + halo capped at 22px)
-   so the two lights read as a peer pair rather than one dominating the
-   other. Cap bottom lands at y=-34 (exactly where the spine begins) so
-   the tip ends here — nothing extends above this light. */
-.trail::after {
-  content: '';
-  position: absolute;
-  left: 89px;
-  top: -41px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 1);
-  box-shadow:
-    0 0 6px rgba(255, 255, 255, 0.85),
-    0 0 14px rgba(255, 255, 255, 0.45),
-    0 0 22px rgba(255, 255, 255, 0.20);
-  opacity: 1;
+  pointer-events: none;
+  z-index: -1;
 }
 @media (max-width: 600px) {
-  .trail::before { left: 13px; width: 7px; }
-  .trail::after { left: 13px; }
+  .trail::before { left: 13px; }
 }
 .ev {
   position: relative;
@@ -1828,32 +1811,45 @@ footer.foot .meta {
   }
 }
 
-/* ---------- Transmission tower (silhouette behind Projects + Contact) ----------
-   The trail spine is the TIP of the tower; the lattice body picks up below
-   it and runs to a splayed foundation just above the footer. Drawn as a
-   dark SVG silhouette via background-image, sized to span the entire
-   tower-zone (Projects + Contact). Sits BEHIND content because it's the
-   first child of the positioned tower-zone — DOM order paints it first,
-   sections paint over it. Aria-hidden, decorative.
+/* ---------- Transmission tower (unified silhouette behind Trail + Projects + Contact) ----------
+   ONE visual element from antenna tip to ground:
+   - .tower-zone::before draws the spine (top portion) — a 7px dark navy
+     bar from just below the antenna cap down to where the SVG body begins.
+   - .tower-zone > .transmission-tower draws the body — the SVG silhouette
+     (cross-arm + lattice + splayed legs + foundation) anchored to the
+     bottom of the zone with a fixed pixel height.
+   These two layers share the same x-position (--tower-x), same colour
+   (#030814 at effective alpha 0.6 via wrapper opacity), and meet at the
+   SVG's top edge with no visible seam — reads as one continuous tower.
 
-   Centred on --tower-x (the same X as the trail spine) so the tip and
-   body line up. The body widens from ~25% of tower width at the top
-   (cross-arm assembly) to 100% at the foundation base. */
+   .trail::after (the white blinking antenna cap) crowns the very top of
+   the spine. Trail dot markers (.ev::before) sit on the spine at the
+   same x. Aria-hidden, decorative. */
 :root {
-  /* Same X as the trail spine. .trail::before is positioned `left: 92px`
-     from .trail's padding-box left edge, so the +92 is the spine offset
-     within .trail (not 192 — .trail's own padding-left does not shift the
-     absolutely-positioned ::before). */
+  /* Spine X = trail's content edge + 92px (the spine offset within .trail).
+     Calc walks: viewport-centred wrap left + wrap padding + trail-grid
+     left column + trail-grid gap + 92px spine offset. */
   --tower-x: calc(max(0px, (100% - var(--max)) / 2) + var(--pad-x) + 200px + clamp(24px, 4vw, 64px) + 92px);
-  --tower-w: clamp(320px, 36vw, 560px);
-  /* Cross-arm assembly now starts at viewBox y=0 (was y=40) so it lives
-     at the very top edge of the rendered SVG. Combined with the negative
-     `top` offset on .transmission-tower below, this puts the cross-arm
-     bar exactly where the trail spine ends — letting the antenna mast
-     visually flow into the tower body. A central vertical spine line
-     (x=120, y=0→55) runs THROUGH the cross-arm assembly so the trail
-     tip continues down into the body neck without a break. */
-  --tower-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 1000' preserveAspectRatio='none'><g fill='none' stroke='%23030814' stroke-linecap='round' stroke-linejoin='round'><line x1='120' y1='0' x2='120' y2='55' stroke-width='3'/><line x1='50' y1='0' x2='190' y2='0' stroke-width='3.5'/><line x1='60' y1='0' x2='60' y2='55' stroke-width='2.5'/><line x1='180' y1='0' x2='180' y2='55' stroke-width='2.5'/><line x1='90' y1='0' x2='90' y2='55' stroke-width='2'/><line x1='150' y1='0' x2='150' y2='55' stroke-width='2'/><line x1='90' y1='55' x2='150' y2='55' stroke-width='2.5'/><line x1='100' y1='55' x2='10' y2='1000' stroke-width='4'/><line x1='140' y1='55' x2='230' y2='1000' stroke-width='4'/><line x1='100' y1='55' x2='150' y2='160' stroke-width='1.6'/><line x1='140' y1='55' x2='90' y2='160' stroke-width='1.6'/><line x1='90' y1='160' x2='150' y2='160' stroke-width='2'/><line x1='90' y1='160' x2='160' y2='265' stroke-width='1.6'/><line x1='150' y1='160' x2='80' y2='265' stroke-width='1.6'/><line x1='80' y1='265' x2='160' y2='265' stroke-width='2'/><line x1='80' y1='265' x2='170' y2='370' stroke-width='1.6'/><line x1='160' y1='265' x2='70' y2='370' stroke-width='1.6'/><line x1='70' y1='370' x2='170' y2='370' stroke-width='2'/><line x1='70' y1='370' x2='180' y2='475' stroke-width='1.6'/><line x1='170' y1='370' x2='60' y2='475' stroke-width='1.6'/><line x1='60' y1='475' x2='180' y2='475' stroke-width='2'/><line x1='60' y1='475' x2='190' y2='580' stroke-width='1.6'/><line x1='180' y1='475' x2='50' y2='580' stroke-width='1.6'/><line x1='50' y1='580' x2='190' y2='580' stroke-width='2'/><line x1='50' y1='580' x2='200' y2='685' stroke-width='1.6'/><line x1='190' y1='580' x2='40' y2='685' stroke-width='1.6'/><line x1='40' y1='685' x2='200' y2='685' stroke-width='2'/><line x1='40' y1='685' x2='210' y2='790' stroke-width='1.6'/><line x1='200' y1='685' x2='30' y2='790' stroke-width='1.6'/><line x1='30' y1='790' x2='210' y2='790' stroke-width='2'/><line x1='30' y1='790' x2='220' y2='895' stroke-width='1.6'/><line x1='210' y1='790' x2='20' y2='895' stroke-width='1.6'/><line x1='20' y1='895' x2='220' y2='895' stroke-width='2'/><line x1='20' y1='895' x2='230' y2='1000' stroke-width='1.6'/><line x1='220' y1='895' x2='10' y2='1000' stroke-width='1.6'/><line x1='5' y1='1000' x2='235' y2='1000' stroke-width='4.5'/></g></svg>");
+  /* WIDE silhouette — the foundation reads as a real transmission tower
+     planted in the landscape. Clamp scales with viewport so the megalophobic
+     proportion holds across screen sizes. */
+  --tower-w: clamp(440px, 50vw, 760px);
+  /* TALL body height — pinned in pixels so the cross-arm position is
+     stable regardless of trail length. Sized so the upper lattice rises
+     well above "Things I've built" (the Projects heading) and the cross-
+     arm sits high in the trail content area. The trail spine (.trail::
+     before) provides the central vertical inside trail; below trail, the
+     X-bracing convergence implies the spine. */
+  --tower-body-h: clamp(1900px, 145vh, 3000px);
+  /* Foundation overshoots the zone bottom and grounds itself into the
+     footer area so the base doesn't appear to float above the contact
+     section. */
+  --tower-base-overshoot: clamp(80px, 10vh, 220px);
+  /* SVG: cross-arm assembly (y=0→55) → splayed legs + lattice cells
+     (y=55→1000) → foundation base (y=1000). Central spine line at x=120
+     runs through the cross-arm only; below the cross-arm the legs splay
+     and the X-bracing converges around the centre line implicitly. */
+  --tower-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 1000' preserveAspectRatio='none'><g fill='none' stroke='%23030814' stroke-linecap='round' stroke-linejoin='round'><line x1='120' y1='0' x2='120' y2='1000' stroke-width='2.4'/><line x1='50' y1='0' x2='190' y2='0' stroke-width='3.5'/><line x1='60' y1='0' x2='60' y2='55' stroke-width='2.5'/><line x1='180' y1='0' x2='180' y2='55' stroke-width='2.5'/><line x1='90' y1='0' x2='90' y2='55' stroke-width='2'/><line x1='150' y1='0' x2='150' y2='55' stroke-width='2'/><line x1='90' y1='55' x2='150' y2='55' stroke-width='2.5'/><line x1='100' y1='55' x2='10' y2='1000' stroke-width='4'/><line x1='140' y1='55' x2='230' y2='1000' stroke-width='4'/><line x1='100' y1='55' x2='150' y2='160' stroke-width='1.6'/><line x1='140' y1='55' x2='90' y2='160' stroke-width='1.6'/><line x1='90' y1='160' x2='150' y2='160' stroke-width='2'/><line x1='90' y1='160' x2='160' y2='265' stroke-width='1.6'/><line x1='150' y1='160' x2='80' y2='265' stroke-width='1.6'/><line x1='80' y1='265' x2='160' y2='265' stroke-width='2'/><line x1='80' y1='265' x2='170' y2='370' stroke-width='1.6'/><line x1='160' y1='265' x2='70' y2='370' stroke-width='1.6'/><line x1='70' y1='370' x2='170' y2='370' stroke-width='2'/><line x1='70' y1='370' x2='180' y2='475' stroke-width='1.6'/><line x1='170' y1='370' x2='60' y2='475' stroke-width='1.6'/><line x1='60' y1='475' x2='180' y2='475' stroke-width='2'/><line x1='60' y1='475' x2='190' y2='580' stroke-width='1.6'/><line x1='180' y1='475' x2='50' y2='580' stroke-width='1.6'/><line x1='50' y1='580' x2='190' y2='580' stroke-width='2'/><line x1='50' y1='580' x2='200' y2='685' stroke-width='1.6'/><line x1='190' y1='580' x2='40' y2='685' stroke-width='1.6'/><line x1='40' y1='685' x2='200' y2='685' stroke-width='2'/><line x1='40' y1='685' x2='210' y2='790' stroke-width='1.6'/><line x1='200' y1='685' x2='30' y2='790' stroke-width='1.6'/><line x1='30' y1='790' x2='210' y2='790' stroke-width='2'/><line x1='30' y1='790' x2='220' y2='895' stroke-width='1.6'/><line x1='210' y1='790' x2='20' y2='895' stroke-width='1.6'/><line x1='20' y1='895' x2='220' y2='895' stroke-width='2'/><line x1='20' y1='895' x2='230' y2='1000' stroke-width='1.6'/><line x1='220' y1='895' x2='10' y2='1000' stroke-width='1.6'/><line x1='5' y1='1000' x2='235' y2='1000' stroke-width='4.5'/></g></svg>");
 }
 
 .tower-zone {
@@ -1861,32 +1857,28 @@ footer.foot .meta {
 }
 .tower-zone > .transmission-tower {
   position: absolute;
-  /* Extend FAR upward into the trail section so the tower body starts
-     well above the trail spine end. The trail spine remains visible
-     above the tower's cross-arm assembly (the user accepted the tip
-     not joining all the way), but the tower itself reads as much
-     taller / more imposing relative to the tip. */
-  top: calc(-1 * clamp(220px, 26vh, 380px));
-  bottom: 0;
-  /* Centre the wide silhouette on the trail spine X */
+  top: 0;
+  /* Foundation extends below the zone (into footer area) so the base
+     grounds visually instead of floating above contact. */
+  bottom: calc(-1 * var(--tower-base-overshoot));
   left: calc(var(--tower-x) - var(--tower-w) / 2);
   width: var(--tower-w);
   pointer-events: none;
   background-image: var(--tower-svg);
-  background-size: 100% 100%;
+  background-size: 100% var(--tower-body-h);
   background-repeat: no-repeat;
-  background-position: center top;
+  background-position: center bottom;
   opacity: 0.6;
-  /* z-index -2 places the tower BEHIND the bg-harumaki ridge (z:-1)
-     and bg-buildings (z:-1), so the landscape silhouettes occlude the
-     tower foundation — reads as the tower standing behind/inside the
-     distant landscape rather than floating above it. */
+  /* z-index -2 places the tower BEHIND the bg-harumaki ridge (z:-1) and
+     bg-buildings (z:-1), so the landscape silhouettes occlude the tower
+     foundation — reads as standing behind/inside the distant landscape. */
   z-index: -2;
 }
 
 @media (max-width: 720px) {
-  /* Column math doesn't survive the responsive single-column collapse;
-     the wide tower would crash through every card and text block. */
+  /* Column math (--tower-x) assumes the desktop trail-grid; mobile
+     collapses to 1fr so the SVG would land at the wrong x. Hide the
+     SVG body; .trail::before still draws the spine through trail. */
   .tower-zone > .transmission-tower { display: none; }
 }
 @media print {
@@ -2158,8 +2150,8 @@ footer.foot .meta {
   .hero .id-card { background: #f5f5f5 !important; color: #000 !important; box-shadow: none !important; border-color: #999 !important; }
   .hero .id-card dt, .hero .id-card dd, .hero .id-card .live { color: #000 !important; }
   .ev::before, .ev.now::before { background: #000 !important; border-color: #000 !important; box-shadow: none !important; animation: none !important; filter: none !important; }
-  .ev::after, .ev.now::after, .trail::after { display: none !important; }
-  .trail::before { background: #999 !important; box-shadow: none !important; top: 8px !important; }
+  .ev::after, .ev.now::after { display: none !important; }
+  .trail::before { background: #999 !important; box-shadow: none !important; }
   .reveal,
   .reveal.reveal--recede,
   .reveal.reveal--sweep,

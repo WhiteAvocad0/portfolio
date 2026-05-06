@@ -14,9 +14,9 @@ export default function Home() {
         <HeroSection />
         <AboutSection />
         <SkillsSection />
-        <TrailSection />
         <div className="tower-zone">
           <aside className="transmission-tower" aria-hidden />
+          <TrailSection />
           <ProjectsSection />
           <ContactSection />
         </div>
