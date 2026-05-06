@@ -42,9 +42,8 @@ yarn-error.log*
 
 # playwright-mcp browser-tool artifacts (screenshots / snapshots taken during dev)
 /.playwright-mcp/
-/portfolio-*.png
-/ftr-*.png
-/harumaki-*.png
+# scratch screenshots at repo root — public/og-image.png and similar are unaffected
+/*.png
 
 # superpowers brainstorm scratch (mockups, server state)
 /.superpowers/
