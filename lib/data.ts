@@ -1,7 +1,6 @@
 export const profile = {
   name: 'Jeremy Woon',
   fullName: 'Jeremy Woon Zhe Ming',
-  initials: 'JW',
   available: 'Available · Sept 2026',
   status: 'Open · Sept 2026',
   location: 'Kuala Lumpur, MY',

@@ -34,7 +34,7 @@ export function ContactSection() {
               </li>
             ))}
           </ul>
-          <aside className="cta-card transmit reveal">
+          <aside className="cta-card reveal">
             <div className="lab">{cta.label}</div>
             <div className="ti">{cta.title}</div>
             <a href={`mailto:${contact.email}`} className="tx-btn">

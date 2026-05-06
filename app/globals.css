@@ -53,9 +53,9 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 html {
-  /* No `scroll-behavior: smooth` — Lenis (init'd in DepthEffects) owns
-     the scroll easing now; CSS smoothing would double up on anchor
-     clicks and fight Lenis's interpolation. */
+  /* No `scroll-behavior: smooth` — DepthEffects runs its own lerp-scroll
+     (targetY → scrollY at 0.18/frame); CSS smoothing would double up on
+     anchor clicks and fight the JS interpolation. */
   /* Prevent reveal sweeps and 3D transforms from briefly exposing the
      viewport's edge. `clip` (vs `hidden`) doesn't establish a scroll
      container, so position: sticky in section labels still works. */
@@ -450,51 +450,6 @@ body::before {
   flex-shrink: 0;
 }
 .hero .id-card .head .t { color: var(--fg); }
-.hero .id-card .head .rt {
-  margin-left: auto;
-  font-family: var(--mono);
-  font-weight: 400;
-  font-size: 10px;
-  letter-spacing: 0.20em;
-  color: var(--bloom-soft);
-}
-/* Hero "now broadcasting" tag rack — sits below the dl, mono chips */
-.hero .id-card .bcast {
-  position: relative;
-  z-index: 1;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255,255,255,0.10);
-}
-.hero .id-card .bcast .lab {
-  display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.20em;
-  color: var(--muted-2);
-  margin-bottom: 8px;
-}
-.hero .id-card .bcast .bands {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 5px;
-}
-.hero .id-card .bcast .bands span {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  padding: 3px 7px;
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 999px;
-  color: var(--fg-2);
-  background: rgba(255,255,255,0.04);
-}
-.hero .id-card .bcast .bands span[data-i="live"] {
-  color: var(--bloom-soft);
-  border-color: rgba(255, 168, 244, 0.34);
-  background: rgba(255, 128, 247, 0.10);
-}
 .hero .id-card dl {
   margin: 0;
   display: grid;
@@ -1651,18 +1606,6 @@ footer.foot {
   position: relative;
   z-index: 1;
 }
-footer.foot .sig {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: clamp(18px, 4.4vw, 22px);
-  color: var(--bloom-soft);
-  text-transform: none;
-  letter-spacing: 0;
-  transform: rotate(-2deg);
-  transform-origin: right bottom;
-  padding: 4px 0 0 8px;
-}
-
 /* ---------- Callsign card (sits in About's left column) ---------- */
 .about-grid > .callsign-card {
   position: sticky;
@@ -1785,7 +1728,7 @@ footer.foot .sig {
 }
 
 /* ---------- CTA button on the cta card ---------- */
-.outro .cta-card.transmit a.tx-btn {
+.outro .cta-card a.tx-btn {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -1809,12 +1752,12 @@ footer.foot .sig {
     0 14px 32px rgba(255, 49, 134, 0.22);
   transition: filter 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
 }
-.outro .cta-card.transmit a.tx-btn .arr {
+.outro .cta-card a.tx-btn .arr {
   margin-left: 4px;
   transition: transform 0.25s ease;
 }
 @media (hover: hover) {
-  .outro .cta-card.transmit a.tx-btn:hover {
+  .outro .cta-card a.tx-btn:hover {
     filter: brightness(1.15);
     transform: translateY(-1px);
     box-shadow:
@@ -1824,7 +1767,7 @@ footer.foot .sig {
       0 24px 56px rgba(255, 49, 134, 0.32),
       0 0 64px rgba(255, 128, 247, 0.42);
   }
-  .outro .cta-card.transmit a.tx-btn:hover .arr { transform: translateX(6px); }
+  .outro .cta-card a.tx-btn:hover .arr { transform: translateX(6px); }
 }
 
 /* ---------- Footer sign-off ---------- */
@@ -2042,11 +1985,12 @@ footer.foot .meta {
    all need restraint on small viewports — both for paint performance
    on low-end phones and for visual scale. */
 @media (max-width: 720px) {
-  /* Phantom-gap fix: every section grid carries an .empty spacer as
-     its left column on desktop. When the grid collapses to 1fr it
-     becomes a 0-height row that still triggers the row gap, eating
-     24-64px of vertical space below the section heading. Hide it. */
-  .about-grid > .empty,
+  /* Phantom-gap fix: skills/trail/projects grids carry an .empty spacer
+     as their left column on desktop. When the grid collapses to 1fr the
+     spacer becomes a 0-height row that still triggers the row gap,
+     eating 24-64px below the section heading. Hide it. (About uses the
+     callsign-card as its left column, not an .empty div, so it's not
+     in this list.) */
   .skills-grid > .empty,
   .trail-grid > .empty,
   .proj-grid > .empty { display: none; }
@@ -2195,8 +2139,7 @@ footer.foot .meta {
   .hero h1, .hero .tagline, .hero .eyebrow b,
   .s h2, .s .head .label .num,
   .about-body p, .about-body p.sub,
-  .skill-list .name, .ev h3, .proj-row .body h3, .outro h2,
-  footer.foot .sig {
+  .skill-list .name, .ev h3, .proj-row .body h3, .outro h2 {
     color: #000 !important;
     text-shadow: none !important;
   }
