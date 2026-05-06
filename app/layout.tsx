@@ -78,10 +78,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="bg-harumaki" aria-hidden="true" />
         <div className="bg-vignette" aria-hidden="true" />
         <aside className="hud-ticker" aria-hidden="true">
-          <span>LAT 03.13</span>
-          <span>LON 101.69</span>
+          <span>Kuala Lumpur</span>
           <span>UTC+8</span>
-          <span>STN-KUL</span>
           <span className="dot" />
         </aside>
         <script

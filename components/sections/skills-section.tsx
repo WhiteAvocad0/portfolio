@@ -18,7 +18,7 @@ export function SkillsSection() {
               <div className="skill-group" key={group.title}>
                 <div className="gtitle">
                   <span>{group.title}</span>
-                  <em>KIT · {String(gi + 1).padStart(2, '0')}</em>
+                  <em>{String(gi + 1).padStart(2, '0')} / 02</em>
                 </div>
                 <ul className="skill-list" data-bars>
                   {group.items.map((item) => {

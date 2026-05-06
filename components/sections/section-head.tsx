@@ -14,7 +14,6 @@ export function SectionHead({ section, children, style }: Props) {
       <div className="label">
         <span className="num">{meta.number}<small>/ 05</small></span>
         <span>{meta.label}</span>
-        <span className="state"><b>{meta.state}</b><i>{meta.code}</i></span>
       </div>
       {children ?? <span />}
     </div>

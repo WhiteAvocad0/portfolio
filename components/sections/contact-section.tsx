@@ -22,7 +22,7 @@ export function ContactSection() {
           <ul className="links reveal reveal--sweep">
             {links.map((l, i) => (
               <li key={l.label}>
-                <span className="ch">CH {String(i + 1).padStart(2, '0')}</span>
+                <span className="ch">{String(i + 1).padStart(2, '0')}</span>
                 <span className="lab">{l.label}</span>
                 <a
                   href={l.href}
@@ -38,7 +38,6 @@ export function ContactSection() {
             <div className="lab">{cta.label}</div>
             <div className="ti">{cta.title}</div>
             <a href={`mailto:${contact.email}`} className="tx-btn">
-              <span className="play" aria-hidden>▶</span>
               <span>{cta.action}</span>
               <span className="arr" aria-hidden>→</span>
             </a>

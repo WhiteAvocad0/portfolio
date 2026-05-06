@@ -946,7 +946,7 @@ section#about .head { grid-template-columns: 380px 1fr; }
   padding-left: 6px;
 }
 .skill-list.in-view .bar > em { color: var(--fg-2); }
-/* Group title + KIT callsign tag */
+/* Group title + numeric index */
 .skill-group .gtitle {
   display: flex;
   align-items: baseline;
@@ -1482,9 +1482,9 @@ a.proj-row { cursor: pointer; }
 .outro .links {
   list-style: none; padding: 0; margin: 0;
 }
-/* Channels rack — each row is a 3-col grid: channel badge, label, link.
-   Reads as a transmitter dispatch console. The `.ch` mono badge sits in
-   a fixed column at the left so all four rows align on a vertical edge. */
+/* Contact rack — each row is a 3-col grid: numeric index, label, link.
+   The `.ch` mono index sits in a fixed column at the left so all four
+   rows align on a vertical edge. */
 .outro .links li {
   border-top: 1px solid var(--rule);
   padding: 18px 0;
@@ -1663,47 +1663,6 @@ footer.foot .sig {
   padding: 4px 0 0 8px;
 }
 
-/* ---------- Section rail thread (the small "control strip" caption that
-   sits below the section number/name and turns the otherwise empty 200px
-   side rail into an instrument readout) ---------- */
-.s .head .label .state,
-.outro .head .label .state {
-  margin-top: 14px;
-  padding-left: 10px;
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.18em;
-  color: var(--muted-2);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
-}
-.s .head .label .state::before,
-.outro .head .label .state::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 1px;
-  bottom: 4px;
-  width: 1px;
-  background: linear-gradient(180deg,
-    rgba(255, 255, 255, 0.45) 0%,
-    rgba(255, 255, 255, 0.05) 100%);
-}
-.s .head .label .state b,
-.outro .head .label .state b {
-  font-weight: 500;
-  color: var(--fg-2);
-  letter-spacing: 0.18em;
-}
-.s .head .label .state i,
-.outro .head .label .state i {
-  font-style: normal;
-  color: var(--muted-2);
-  letter-spacing: 0.16em;
-}
-
 /* ---------- Callsign card (sits in About's left column) ---------- */
 .about-grid > .callsign-card {
   position: sticky;
@@ -1821,33 +1780,11 @@ footer.foot .sig {
   color: var(--fg-2);
   background: rgba(255, 255, 255, 0.04);
 }
-.about-grid > .callsign-card .bcast li[data-i="live"] {
-  color: var(--bloom-soft);
-  border-color: rgba(255, 168, 244, 0.32);
-  background: rgba(255, 128, 247, 0.10);
-}
 @media (max-width: 720px) {
   .about-grid > .callsign-card { position: static; }
 }
 
-/* Per-event glyph above the year — "ED / WK / CT / SD" */
-.ev .yr .glyph {
-  display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.20em;
-  color: var(--muted-2);
-  margin-bottom: 6px;
-}
-.ev.now .yr .glyph {
-  color: var(--bloom-soft);
-  text-shadow: 0 0 6px rgba(255, 168, 244, 0.45);
-}
-@media (max-width: 600px) {
-  .ev .yr .glyph { display: inline-block; margin-right: 8px; margin-bottom: 0; }
-}
-
-/* ---------- Transmit button on the cta card ---------- */
+/* ---------- CTA button on the cta card ---------- */
 .outro .cta-card.transmit a.tx-btn {
   position: relative;
   display: inline-flex;
@@ -1871,21 +1808,6 @@ footer.foot .sig {
     0 6px 14px rgba(255, 49, 134, 0.25),
     0 14px 32px rgba(255, 49, 134, 0.22);
   transition: filter 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
-}
-.outro .cta-card.transmit a.tx-btn .play {
-  font-size: 9px;
-  color: var(--bloom-soft);
-  display: inline-flex;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255, 168, 244, 0.55);
-  background: color(display-p3 1 0.45 0.92 / 0.20);
-  box-shadow:
-    inset 0 0 6px rgba(255, 168, 244, 0.42),
-    0 0 8px rgba(255, 128, 247, 0.32);
-  margin-left: -4px;
 }
 .outro .cta-card.transmit a.tx-btn .arr {
   margin-left: 4px;
@@ -2287,7 +2209,7 @@ footer.foot .meta {
   .skill-list .bar > span { background: #f0f0f0 !important; border-color: #bbb !important; box-shadow: none !important; }
   .skill-list .bar > span[data-on] { background: #000 !important; border-color: #000 !important; }
   .skill-list .bar > em { color: #000 !important; }
-  .hud-ticker, .outro .cta-card.transmit a.tx-btn .play, footer.foot .signoff .cur { display: none !important; }
+  .hud-ticker, footer.foot .signoff .cur { display: none !important; }
   .about-grid > .callsign-card { background: #f5f5f5 !important; border-color: #999 !important; box-shadow: none !important; color: #000 !important; }
   .about-grid > .callsign-card dt, .about-grid > .callsign-card dd, .about-grid > .callsign-card .bcast .lab, .about-grid > .callsign-card .bcast li { color: #000 !important; background: transparent !important; border-color: #999 !important; }
   .hero .id-card { background: #f5f5f5 !important; color: #000 !important; box-shadow: none !important; border-color: #999 !important; }

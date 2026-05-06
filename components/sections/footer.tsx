@@ -7,7 +7,7 @@ export function Footer() {
       <span className="signoff">
         <span className="who">{profile.name}</span>
         <span className="sep" aria-hidden>·</span>
-        <span className="tx">JW-01 · STN-KUL · 73° · END OF TRANSMISSION</span>
+        <span className="tx">Kuala Lumpur · UTC+8</span>
         <em className="cur" aria-hidden>▮</em>
       </span>
       <span className="meta">© {year} {profile.name}</span>

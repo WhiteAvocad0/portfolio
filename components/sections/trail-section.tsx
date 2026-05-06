@@ -2,14 +2,6 @@ import { Fragment } from 'react';
 import { trail } from '@/lib/data';
 import { SectionHead, sectionHeadingId } from './section-head';
 
-function glyphFor(kind: string): string {
-  if (kind.includes('Education')) return 'ED';
-  if (kind.includes('Internship') || kind.includes('Work')) return 'WK';
-  if (kind.includes('Certification')) return 'CT';
-  if (kind.includes('Freelance') || kind.includes('Side')) return 'SD';
-  return 'EV';
-}
-
 export function TrailSection() {
   const headingId = sectionHeadingId('trail');
   return (
@@ -29,7 +21,6 @@ export function TrailSection() {
                 key={`${ev.title}-${ev.yearMain}`}
               >
                 <div className="yr">
-                  <span className="glyph">{glyphFor(ev.kind)}</span>
                   {ev.yearMain}
                   <b>{ev.yearTag}</b>
                 </div>

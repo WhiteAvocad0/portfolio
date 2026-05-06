@@ -35,8 +35,8 @@ export function AboutSection() {
             <div className="bcast">
               <span className="lab">Currently working with</span>
               <ul>
-                {station.broadcasting.map((t, i) => (
-                  <li key={t} {...(i === 0 ? { 'data-i': 'live' } : {})}>{t}</li>
+                {station.broadcasting.map((t) => (
+                  <li key={t}>{t}</li>
                 ))}
               </ul>
             </div>
